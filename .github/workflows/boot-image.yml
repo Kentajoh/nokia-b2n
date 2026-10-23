@@ -1,4 +1,4 @@
-name: Boot image
+name: Device archive
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 jobs:
   boot:
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    timeout-minutes: 240
     permissions:
       contents: write
     steps:
@@ -21,17 +21,17 @@ jobs:
             bc bison build-essential ca-certificates cpio curl flex git \
             libssl-dev python-is-python3 python3 rsync wget xz-utils zip
 
-      - name: Build the kernel and boot image
+      - name: Build the kernel, boot image, and device archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-          ./build.sh -k 2>&1 | tee build.log
+          ./build.sh 2>&1 | tee build.log
           mkdir -p out
           cp workdir/tmp/partitions/boot.img out/boot.img
           python3 - <<'PY'
-          import pathlib, struct
+          import pathlib, struct, tarfile
           data = pathlib.Path("out/boot.img").read_bytes()
           if data[:8] != b"ANDROID!":
               raise SystemExit("boot.img is missing the Android boot magic")
@@ -44,6 +44,19 @@ jobs:
               raise SystemExit("unexpected boot header")
           if kernel_size == 0 or ramdisk_size == 0:
               raise SystemExit("boot image is missing the kernel or ramdisk")
+          archive = pathlib.Path("out/device_B2N.tar.xz")
+          if not archive.is_file():
+              raise SystemExit("device_B2N.tar.xz was not produced")
+          names = tarfile.open(archive, "r:xz").getnames()
+          required = [
+              "partitions/boot.img",
+              "system/opt/halium-overlay/system/etc/ofono/binder.d/qti.conf",
+              "system/opt/halium-overlay/system/etc/deviceinfo/devices/halium.yaml",
+          ]
+          missing = [name for name in required if name not in names]
+          if missing:
+              raise SystemExit("device archive is missing: " + ", ".join(missing))
+          print(f"device archive {archive.stat().st_size} bytes, {len(names)} members")
           PY
 
       - name: Publish the boot image
@@ -54,6 +67,15 @@ jobs:
           mkdir -p /tmp/boot-stage
           cp build.log /tmp/boot-stage/build.log 2>/dev/null || true
           cp out/boot.img /tmp/boot-stage/boot.img 2>/dev/null || true
+          cp out/device_B2N.tar.xz /tmp/boot-stage/device_B2N.tar.xz 2>/dev/null || true
+          cp out/device_B2N.tar.build /tmp/boot-stage/device_B2N.tar.build 2>/dev/null || true
+          if [ -f /tmp/boot-stage/device_B2N.tar.xz ]; then
+            bytes=$(wc -c < /tmp/boot-stage/device_B2N.tar.xz)
+            if [ "$bytes" -gt 90000000 ]; then
+              echo "device_B2N.tar.xz is ${bytes} bytes and is too large to store in git"
+              rm /tmp/boot-stage/device_B2N.tar.xz
+            fi
+          fi
           if [ ! -f /tmp/boot-stage/build.log ] && [ ! -f /tmp/boot-stage/boot.img ]; then
             echo "Nothing to publish"
             exit 0
@@ -68,11 +90,14 @@ jobs:
           cp /tmp/boot-stage/* .
           git add -A
           git -c user.name="Kent Johansen" -c user.email="kent.a.johansen@gmail.com" \
-            commit -m "Publish the B2N boot image from ${GITHUB_SHA}" || exit 0
+            commit -m "Publish the B2N device archive from ${GITHUB_SHA}" || exit 0
           git push origin HEAD:ci/boot-img
 
       - uses: actions/upload-artifact@v4
         with:
-          name: boot-img
-          path: out/boot.img
+          name: device-archive
+          path: |
+            out/boot.img
+            out/device_B2N.tar.xz
+            out/device_B2N.tar.build
           if-no-files-found: error

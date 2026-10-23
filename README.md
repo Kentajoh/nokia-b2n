@@ -44,13 +44,21 @@ format them.
 `scripts/restore-stock.sh` writes that dump back. The images stay on this
 machine. They are not part of the git history.
 
-## Boot image
+## Device archive
 
-`.github/workflows/boot-image.yml` builds `boot.img` on Ubuntu with
-`./build.sh -k`. The image is uploaded as a workflow artifact and also
-published on the `ci/boot-img` branch. It is not flashed from that workflow.
+`.github/workflows/boot-image.yml` runs `./build.sh` on Ubuntu. That builds
+the kernel, `boot.img`, and `device_B2N.tar.xz`. The archive contains the
+boot image plus the ofono and device-info overlays. Both files are uploaded
+as a workflow artifact and published on the `ci/boot-img` branch. Nothing is
+flashed from that workflow.
+
+The arm64 Ubuntu Touch 24.04-2.x rootfs published for Halium 9 and newer is
+`ubuntu-touch-android9plus-rootfs-arm64.tar.gz`, about 926 MiB compressed.
+It is not part of this archive. Its unpacked size still has to be compared
+with the 3072 MiB system slot before it is installed.
 
 ## What is not done yet
 
-The boot image has not been flashed. Carrier VoLTE configuration for the SIM
-in use still has to be checked against the Ubuntu Touch carrier list.
+The boot image and the rootfs have not been flashed. Carrier VoLTE
+configuration for the SIM in use still has to be checked against the Ubuntu
+Touch carrier list.
