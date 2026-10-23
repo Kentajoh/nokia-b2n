@@ -1,0 +1,50 @@
+name: Boot image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  boot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential ca-certificates cpio curl flex git \
+            libssl-dev python-is-python3 python3 rsync wget xz-utils zip
+
+      - name: Build the kernel and boot image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          ./build.sh -k
+          mkdir -p out
+          cp workdir/tmp/partitions/boot.img out/boot.img
+          python3 - <<'PY'
+          import pathlib, struct
+          data = pathlib.Path("out/boot.img").read_bytes()
+          if data[:8] != b"ANDROID!":
+              raise SystemExit("boot.img is missing the Android boot magic")
+          kernel_size, kernel_addr, ramdisk_size, ramdisk_addr, second_size, second_addr, tags_addr, page_size, header_version = struct.unpack_from("<9I", data, 8)
+          print(f"kernel_size={kernel_size:#x} kernel_addr={kernel_addr:#x}")
+          print(f"ramdisk_size={ramdisk_size:#x} ramdisk_addr={ramdisk_addr:#x}")
+          print(f"second_size={second_size:#x} second_addr={second_addr:#x}")
+          print(f"tags_addr={tags_addr:#x} page_size={page_size} header_version={header_version}")
+          if header_version != 0 or page_size != 4096:
+              raise SystemExit("unexpected boot header")
+          if kernel_size == 0 or ramdisk_size == 0:
+              raise SystemExit("boot image is missing the kernel or ramdisk")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boot-img
+          path: out/boot.img
+          if-no-files-found: error

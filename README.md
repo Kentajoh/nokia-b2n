@@ -42,7 +42,13 @@ format them.
 `scripts/restore-stock.sh` writes that dump back. The images stay on this
 machine. They are not part of the git history.
 
+## Boot image
+
+`.github/workflows/boot-image.yml` builds `boot.img` on Ubuntu with
+`./build.sh -k`. The image is uploaded as a workflow artifact. It is not
+flashed from that workflow.
+
 ## What is not done yet
 
-The boot image has not been built or flashed. Carrier VoLTE configuration for
-the SIM in use still has to be checked against the Ubuntu Touch carrier list.
+The boot image has not been flashed. Carrier VoLTE configuration for the SIM
+in use still has to be checked against the Ubuntu Touch carrier list.
