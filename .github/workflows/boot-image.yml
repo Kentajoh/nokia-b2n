@@ -50,12 +50,16 @@ jobs:
           names = tarfile.open(archive, "r:xz").getnames()
           required = [
               "partitions/boot.img",
-              "system/opt/halium-overlay/system/etc/ofono/binder.d/qti.conf",
-              "system/opt/halium-overlay/system/etc/deviceinfo/devices/halium.yaml",
+              "system/opt/halium-overlay/etc/ofono/binder.d/qti.conf",
+              "system/opt/halium-overlay/etc/deviceinfo/devices/halium.yaml",
           ]
           missing = [name for name in required if name not in names]
           if missing:
-              raise SystemExit("device archive is missing: " + ", ".join(missing))
+              overlay = [name for name in names if "halium-overlay" in name]
+              raise SystemExit(
+                  "device archive is missing: " + ", ".join(missing)
+                  + "\narchive overlay entries:\n" + "\n".join(overlay)
+              )
           print(f"device archive {archive.stat().st_size} bytes, {len(names)} members")
           PY
 
