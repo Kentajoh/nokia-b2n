@@ -15,7 +15,9 @@ tools](https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptat
 The kernel branch of this repository is `halium-10`. It is a snapshot of
 [LineageOS/android_kernel_nokia_sdm660](https://github.com/LineageOS/android_kernel_nokia_sdm660)
 `lineage-22.2` at `fa214c1782ae25786cfe0aacee2901713f68707f` (kernel 4.4.302),
-plus `arch/arm64/configs/halium.config`. The same fragment is kept in
+plus `arch/arm64/configs/halium.config`. That branch also repairs
+`drivers/video/console/dummycon.c`, which does not compile once `CONFIG_VT`
+is enabled. The same fragment is kept in
 `kernel-fragments/halium.config`. The defconfig line selects
 `vendor/sdm660-perf_defconfig`, `vendor/nokia/nokia.config`,
 `vendor/nokia/B2N.config`, and `halium.config`, and this kernel merges those
