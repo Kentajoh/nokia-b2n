@@ -2,7 +2,10 @@ deviceinfo_name="Nokia 7 plus"
 deviceinfo_manufacturer="HMD Global"
 deviceinfo_codename="B2N"
 deviceinfo_arch="aarch64"
-deviceinfo_kernel_arch="arm64"
+# The Halium scripts turn aarch64 into ARCH=arm64 and into the
+# aarch64-linux-android- toolchain prefix. arm64 would look for a
+# compiler that the downloaded GCC does not provide.
+deviceinfo_kernel_arch="aarch64"
 
 # Stock vendor on this port is Android 10 (00WW_4_15N, security patch 2021-03-01).
 deviceinfo_halium_version="10"
