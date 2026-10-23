@@ -45,8 +45,8 @@ machine. They are not part of the git history.
 ## Boot image
 
 `.github/workflows/boot-image.yml` builds `boot.img` on Ubuntu with
-`./build.sh -k`. The image is uploaded as a workflow artifact. It is not
-flashed from that workflow.
+`./build.sh -k`. The image is uploaded as a workflow artifact and also
+published on the `ci/boot-img` branch. It is not flashed from that workflow.
 
 ## What is not done yet
 

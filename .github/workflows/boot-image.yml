@@ -9,6 +9,8 @@ jobs:
   boot:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -23,8 +25,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -o pipefail
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-          ./build.sh -k
+          ./build.sh -k 2>&1 | tee build.log
           mkdir -p out
           cp workdir/tmp/partitions/boot.img out/boot.img
           python3 - <<'PY'
@@ -42,6 +45,31 @@ jobs:
           if kernel_size == 0 or ramdisk_size == 0:
               raise SystemExit("boot image is missing the kernel or ramdisk")
           PY
+
+      - name: Publish the boot image
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/boot-stage
+          cp build.log /tmp/boot-stage/build.log 2>/dev/null || true
+          cp out/boot.img /tmp/boot-stage/boot.img 2>/dev/null || true
+          if [ ! -f /tmp/boot-stage/build.log ] && [ ! -f /tmp/boot-stage/boot.img ]; then
+            echo "Nothing to publish"
+            exit 0
+          fi
+          mkdir -p /tmp/boot-publish
+          cd /tmp/boot-publish
+          git init -b ci/boot-img
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/Kentajoh/nokia-b2n.git"
+          if git fetch --depth 1 origin ci/boot-img; then
+            git checkout -B ci/boot-img FETCH_HEAD
+          fi
+          cp /tmp/boot-stage/* .
+          git add -A
+          git -c user.name="Kent Johansen" -c user.email="kent.a.johansen@gmail.com" \
+            commit -m "Publish the B2N boot image from ${GITHUB_SHA}" || exit 0
+          git push origin HEAD:ci/boot-img
 
       - uses: actions/upload-artifact@v4
         with:
