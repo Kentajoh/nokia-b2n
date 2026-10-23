@@ -1,0 +1,1733 @@
++ '[' -d build ']'
++ git clone https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git build
+Cloning into 'build'...
++ ./build/build.sh -k
++ shopt -s extglob
++ BUILD_DIR=workdir
++ OUT=out
++ DEVICE=
++ ONLY_CLONE=
++ ONLY_KERNEL=
++ MENUCONFIG=
++ '[' 1 -gt 0 ']'
++ case "$1" in
++ ONLY_KERNEL=true
++ shift
++ '[' 0 -gt 0 ']'
++ '[' '' ']'
+++ realpath workdir
++ BUILD_DIR=/home/runner/work/nokia-b2n/nokia-b2n/workdir
+++ realpath out
++ OUT=/home/runner/work/nokia-b2n/nokia-b2n/out
++ mkdir -p /home/runner/work/nokia-b2n/nokia-b2n/workdir /home/runner/work/nokia-b2n/nokia-b2n/out
++ TMP=/home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp
++ '[' -d /home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp ']'
++ mkdir -p /home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp
++ TMPDOWN=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads
++ mkdir -p /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads
+++ pwd
++ HERE=/home/runner/work/nokia-b2n/nokia-b2n
++++ realpath ./build/build.sh
+++ dirname /home/runner/work/nokia-b2n/nokia-b2n/build/build.sh
++ SCRIPT=/home/runner/work/nokia-b2n/nokia-b2n/build/build
++ '[' '!' -d /home/runner/work/nokia-b2n/nokia-b2n/build/build ']'
+++ dirname /home/runner/work/nokia-b2n/nokia-b2n/build/build
++ SCRIPT=/home/runner/work/nokia-b2n/nokia-b2n/build
++ mkdir -p /home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp/system /home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp/partitions
++ '[' -n '' ']'
++ source /home/runner/work/nokia-b2n/nokia-b2n/deviceinfo
+++ deviceinfo_name='Nokia 7 plus'
+++ deviceinfo_manufacturer='HMD Global'
+++ deviceinfo_codename=B2N
+++ deviceinfo_arch=aarch64
+++ deviceinfo_kernel_arch=arm64
+++ deviceinfo_halium_version=10
+++ deviceinfo_ubuntu_touch_release=24.04-2.x
+++ deviceinfo_kernel_source=https://github.com/Kentajoh/nokia-b2n.git
+++ deviceinfo_kernel_source_branch=halium-10
+++ deviceinfo_kernel_defconfig='vendor/sdm660-perf_defconfig vendor/nokia/nokia.config vendor/nokia/B2N.config halium.config'
+++ deviceinfo_kernel_clang_compile=true
+++ deviceinfo_kernel_image_name=Image.gz-dtb
+++ deviceinfo_flash_pagesize=4096
+++ deviceinfo_flash_offset_base=0x00000000
+++ deviceinfo_flash_offset_kernel=0x00008000
+++ deviceinfo_flash_offset_ramdisk=0x01000000
+++ deviceinfo_flash_offset_second=0x00f00000
+++ deviceinfo_flash_offset_tags=0x00000100
+++ deviceinfo_bootimg_header_version=0
+++ deviceinfo_bootimg_os_version=10.0.0
+++ deviceinfo_bootimg_os_patch_level=2021-03
+++ deviceinfo_bootimg_partition_size=67108864
+++ deviceinfo_bootimg_qcdt=false
+++ deviceinfo_bootimg_append_vbmeta=false
+++ deviceinfo_use_overlaystore=true
+++ deviceinfo_system_partition_size=3000M
+++ deviceinfo_rootfs_image_sector_size=4096
+++ deviceinfo_kernel_cmdline='console=tty0 console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 loop.max_part=7 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 androidboot.boot_devices=soc/c0c4000.sdhci systempart=/dev/mapper/system systemd.unified_cgroup_hierarchy=0'
++ source /home/runner/work/nokia-b2n/nokia-b2n/build/common_functions.sh
+++ '[' -n dumb ']'
+++ '[' dumb '!=' dumb ']'
++ source /home/runner/work/nokia-b2n/nokia-b2n/build/setup_repositories.sh /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads
+++ set -ex
+++ kernel_arch=arm64
+++ case "$kernel_arch" in
+++ RAMDISK_ARCH=arm64
+++ case "$kernel_arch" in
+++ ARCH=arm64
+++ cd /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads
+++ setup_gcc
+++ print_header 'Setting up GCC repositories'
+++ printf '%s\n' 'Setting up GCC repositories'
+Setting up GCC repositories
+++ '[' -n '' ']'
+++ '[' arm64 = arm64 ']'
+++ clone_if_not_existing https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 pie-gsi
+++ local repo_url=https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+++ local repo_branch=pie-gsi
+++ '[' -z ']'
+++ local repo_name=aarch64-linux-android-4.9
+++ '[' -d aarch64-linux-android-4.9 ']'
+++ git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b pie-gsi aarch64-linux-android-4.9 --depth 1 --recursive
+Cloning into 'aarch64-linux-android-4.9'...
+++ GCC_PATH=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9
+++ drop_python_wrapper /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc
+++ local wrapper_path=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc
+++ local real_bin=real-aarch64-linux-android-gcc
+++ '[' '!' -f /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin/real-aarch64-linux-android-gcc ']'
+++ grep -q 'python$' /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc
+++ ln -sf real-aarch64-linux-android-gcc /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc
+++ [[ arm64 = \a\r\m* ]]
+++ clone_if_not_existing https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 pie-gsi
+++ local repo_url=https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9
+++ local repo_branch=pie-gsi
+++ '[' -z ']'
+++ local repo_name=arm-linux-androideabi-4.9
+++ '[' -d arm-linux-androideabi-4.9 ']'
+++ git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 -b pie-gsi arm-linux-androideabi-4.9 --depth 1 --recursive
+Cloning into 'arm-linux-androideabi-4.9'...
+++ GCC_ARM32_PATH=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9
+++ drop_python_wrapper /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc
+++ local wrapper_path=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc
+++ local real_bin=real-arm-linux-androideabi-gcc
+++ '[' '!' -f /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin/real-arm-linux-androideabi-gcc ']'
+++ grep -q 'python$' /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc
+++ ln -sf real-arm-linux-androideabi-gcc /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc
+++ grep -q 'python$' /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/arm-linux-androideabi/bin/as
+++ sed -i.bak '1 s:.*:#!/usr/bin/env python3:' /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/arm-linux-androideabi/bin/as
+++ setup_clang
+++ true
+++ print_header 'Setting up clang repositories'
+++ printf '%s\n' 'Setting up clang repositories'
+Setting up clang repositories
+++ local CLANG_BRANCH=
+++ local CLANG_REVISION=
+++ [[ -z '' ]]
+++ case "$deviceinfo_halium_version" in
+++ CLANG_BRANCH=android10-gsi
+++ CLANG_REVISION=r353983c
+++ clone_if_not_existing https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 android10-gsi
+++ local repo_url=https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
+++ local repo_branch=android10-gsi
+++ '[' -z ']'
+++ local repo_name=linux-x86
+++ '[' -d linux-x86 ']'
+++ git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android10-gsi linux-x86 --depth 1 --recursive
+Cloning into 'linux-x86'...
+Updating files:   0% (206/23559)Updating files:   1% (236/23559)Updating files:   2% (472/23559)Updating files:   3% (707/23559)Updating files:   4% (943/23559)Updating files:   5% (1178/23559)Updating files:   6% (1414/23559)Updating files:   7% (1650/23559)Updating files:   8% (1885/23559)Updating files:   9% (2121/23559)Updating files:   9% (2304/23559)Updating files:  10% (2356/23559)Updating files:  10% (2584/23559)Updating files:  11% (2592/23559)Updating files:  12% (2828/23559)Updating files:  13% (3063/23559)Updating files:  14% (3299/23559)Updating files:  15% (3534/23559)Updating files:  16% (3770/23559)Updating files:  17% (4006/23559)Updating files:  18% (4241/23559)Updating files:  19% (4477/23559)Updating files:  20% (4712/23559)Updating files:  20% (4787/23559)Updating files:  21% (4948/23559)Updating files:  21% (5038/23559)Updating files:  22% (5183/23559)Updating files:  23% (5419/23559)Updating files:  24% (5655/23559)Updating files:  25% (5890/23559)Updating files:  26% (6126/23559)Updating files:  27% (6361/23559)Updating files:  28% (6597/23559)Updating files:  29% (6833/23559)Updating files:  29% (6924/23559)Updating files:  30% (7068/23559)Updating files:  31% (7304/23559)Updating files:  31% (7468/23559)Updating files:  32% (7539/23559)Updating files:  32% (7547/23559)Updating files:  33% (7775/23559)Updating files:  34% (8011/23559)Updating files:  35% (8246/23559)Updating files:  36% (8482/23559)Updating files:  37% (8717/23559)Updating files:  38% (8953/23559)Updating files:  39% (9189/23559)Updating files:  40% (9424/23559)Updating files:  40% (9621/23559)Updating files:  41% (9660/23559)Updating files:  42% (9895/23559)Updating files:  42% (9987/23559)Updating files:  43% (10131/23559)Updating files:  43% (10177/23559)Updating files:  44% (10366/23559)Updating files:  45% (10602/23559)Updating files:  46% (10838/23559)Updating files:  47% (11073/23559)Updating files:  48% (11309/23559)Updating files:  49% (11544/23559)Updating files:  50% (11780/23559)Updating files:  51% (12016/23559)Updating files:  52% (12251/23559)Updating files:  53% (12487/23559)Updating files:  53% (12617/23559)Updating files:  54% (12722/23559)Updating files:  54% (12806/23559)Updating files:  55% (12958/23559)Updating files:  56% (13194/23559)Updating files:  57% (13429/23559)Updating files:  57% (13644/23559)Updating files:  58% (13665/23559)Updating files:  59% (13900/23559)Updating files:  60% (14136/23559)Updating files:  61% (14371/23559)Updating files:  62% (14607/23559)Updating files:  63% (14843/23559)Updating files:  64% (15078/23559)Updating files:  64% (15299/23559)Updating files:  65% (15314/23559)Updating files:  65% (15350/23559)Updating files:  65% (15505/23559)Updating files:  66% (15549/23559)Updating files:  67% (15785/23559)Updating files:  68% (16021/23559)Updating files:  69% (16256/23559)Updating files:  70% (16492/23559)Updating files:  71% (16727/23559)Updating files:  72% (16963/23559)Updating files:  73% (17199/23559)Updating files:  74% (17434/23559)Updating files:  75% (17670/23559)Updating files:  75% (17769/23559)Updating files:  76% (17905/23559)Updating files:  76% (17990/23559)Updating files:  77% (18141/23559)Updating files:  77% (18176/23559)Updating files:  78% (18377/23559)Updating files:  79% (18612/23559)Updating files:  80% (18848/23559)Updating files:  81% (19083/23559)Updating files:  82% (19319/23559)Updating files:  83% (19554/23559)Updating files:  84% (19790/23559)Updating files:  85% (20026/23559)Updating files:  86% (20261/23559)Updating files:  86% (20308/23559)Updating files:  87% (20497/23559)Updating files:  87% (20674/23559)Updating files:  87% (20680/23559)Updating files:  87% (20683/23559)Updating files:  88% (20732/23559)Updating files:  88% (20865/23559)Updating files:  88% (20888/23559)Updating files:  89% (20968/23559)Updating files:  90% (21204/23559)Updating files:  91% (21439/23559)Updating files:  92% (21675/23559)Updating files:  93% (21910/23559)Updating files:  94% (22146/23559)Updating files:  95% (22382/23559)Updating files:  96% (22617/23559)Updating files:  97% (22853/23559)Updating files:  97% (23086/23559)Updating files:  98% (23088/23559)Updating files:  99% (23324/23559)Updating files:  99% (23369/23559)Updating files:  99% (23410/23559)Updating files:  99% (23556/23559)Updating files: 100% (23559/23559)Updating files: 100% (23559/23559), done.
+++ CLANG_PATH=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c
+++ rm -rf /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/.git /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/Android.bp /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/Android.mk /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/CleanSpec.mk /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/GCC_4_9_DEPRECATION.md /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/OWNERS /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/README.md /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-3289846 /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r328903 /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r339409b /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r344140b /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r346389b /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r346389c /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r349610 /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r349610b /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983b /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-stable /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/profiles /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/soong
+++ drop_python_wrapper /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin/clang
+++ local wrapper_path=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin/clang
+++ local real_bin=real-clang
+++ '[' '!' -f /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin/real-clang ']'
+++ real_bin=clang.real
+++ grep -q 'python$' /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin/clang
+++ ln -sf clang.real /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin/clang
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ setup_tooling
+++ print_header 'Setting up additional tooling repositories'
+++ printf '%s\n' 'Setting up additional tooling repositories'
+Setting up additional tooling repositories
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ clone_if_not_existing https://android.googlesource.com/platform/external/avb android13-gsi
+++ local repo_url=https://android.googlesource.com/platform/external/avb
+++ local repo_branch=android13-gsi
+++ '[' -z ']'
+++ local repo_name=avb
+++ '[' -d avb ']'
+++ git clone https://android.googlesource.com/platform/external/avb -b android13-gsi avb --depth 1 --recursive
+Cloning into 'avb'...
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ '[' -n false ']'
+++ false
+++ clone_if_not_existing https://github.com/LineageOS/android_system_tools_mkbootimg lineage-20.0
+++ local repo_url=https://github.com/LineageOS/android_system_tools_mkbootimg
+++ local repo_branch=lineage-20.0
+++ '[' -z ']'
+++ local repo_name=android_system_tools_mkbootimg
+++ '[' -d android_system_tools_mkbootimg ']'
+++ git clone https://github.com/LineageOS/android_system_tools_mkbootimg -b lineage-20.0 android_system_tools_mkbootimg --depth 1 --recursive
+Cloning into 'android_system_tools_mkbootimg'...
+warning: redirecting to https://github.com/LineageOS/android_system_tools_mkbootimg/
+++ setup_ramdisk
+++ '[' -f halium-boot-ramdisk.img ']'
+++ print_header 'Setting up ramdisk'
+++ printf '%s\n' 'Setting up ramdisk'
+Setting up ramdisk
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ print_message 'Downloading dynparts ramdisk for devices with dynamic partitions'
+++ printf '%s\n' 'Downloading dynparts ramdisk for devices with dynamic partitions'
+Downloading dynparts ramdisk for devices with dynamic partitions
+++ RAMDISK_URL=https://github.com/halium/initramfs-tools-halium/releases/download/dynparts/initrd.img-touch-arm64
+++ curl --location --output halium-boot-ramdisk.img https://github.com/halium/initramfs-tools-halium/releases/download/dynparts/initrd.img-touch-arm64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 5277k  100 5277k    0     0  14.7M      0 --:--:-- --:--:-- --:--:-- 14.7M
+++ setup_recovery_ramdisk
+++ '[' -z '' ']'
+++ return
+++ setup_kernel
+++ print_header 'Setting up kernel repositories'
+++ printf '%s\n' 'Setting up kernel repositories'
+Setting up kernel repositories
++++ basename https://github.com/Kentajoh/nokia-b2n.git
+++ KERNEL_DIR=nokia-b2n.git
+++ KERNEL_DIR=nokia-b2n
+++ clone_if_not_existing https://github.com/Kentajoh/nokia-b2n.git halium-10 nokia-b2n
+++ local repo_url=https://github.com/Kentajoh/nokia-b2n.git
+++ local repo_branch=halium-10
+++ '[' -z x ']'
+++ local repo_name=nokia-b2n
+++ '[' -d nokia-b2n ']'
+++ git clone https://github.com/Kentajoh/nokia-b2n.git -b halium-10 nokia-b2n --depth 1 --recursive
+Cloning into 'nokia-b2n'...
+warning: redirecting to https://github.com/Kentajoh/nokia-b2n.git/
+Updating files:  29% (17203/57603)Updating files:  30% (17281/57603)Updating files:  31% (17857/57603)Updating files:  32% (18433/57603)Updating files:  33% (19009/57603)Updating files:  34% (19586/57603)Updating files:  35% (20162/57603)Updating files:  36% (20738/57603)Updating files:  37% (21314/57603)Updating files:  38% (21890/57603)Updating files:  39% (22466/57603)Updating files:  40% (23042/57603)Updating files:  41% (23618/57603)Updating files:  42% (24194/57603)Updating files:  43% (24770/57603)Updating files:  44% (25346/57603)Updating files:  45% (25922/57603)Updating files:  46% (26498/57603)Updating files:  47% (27074/57603)Updating files:  48% (27650/57603)Updating files:  49% (28226/57603)Updating files:  50% (28802/57603)Updating files:  51% (29378/57603)Updating files:  51% (29631/57603)Updating files:  52% (29954/57603)Updating files:  53% (30530/57603)Updating files:  54% (31106/57603)Updating files:  55% (31682/57603)Updating files:  56% (32258/57603)Updating files:  57% (32834/57603)Updating files:  58% (33410/57603)Updating files:  59% (33986/57603)Updating files:  60% (34562/57603)Updating files:  61% (35138/57603)Updating files:  62% (35714/57603)Updating files:  63% (36290/57603)Updating files:  64% (36866/57603)Updating files:  65% (37442/57603)Updating files:  66% (38018/57603)Updating files:  67% (38595/57603)Updating files:  68% (39171/57603)Updating files:  68% (39305/57603)Updating files:  69% (39747/57603)Updating files:  70% (40323/57603)Updating files:  71% (40899/57603)Updating files:  72% (41475/57603)Updating files:  73% (42051/57603)Updating files:  74% (42627/57603)Updating files:  75% (43203/57603)Updating files:  76% (43779/57603)Updating files:  77% (44355/57603)Updating files:  78% (44931/57603)Updating files:  79% (45507/57603)Updating files:  80% (46083/57603)Updating files:  81% (46659/57603)Updating files:  82% (47235/57603)Updating files:  83% (47811/57603)Updating files:  84% (48387/57603)Updating files:  85% (48963/57603)Updating files:  86% (49539/57603)Updating files:  86% (49659/57603)Updating files:  87% (50115/57603)Updating files:  88% (50691/57603)Updating files:  89% (51267/57603)Updating files:  90% (51843/57603)Updating files:  91% (52419/57603)Updating files:  92% (52995/57603)Updating files:  93% (53571/57603)Updating files:  94% (54147/57603)Updating files:  95% (54723/57603)Updating files:  96% (55299/57603)Updating files:  97% (55875/57603)Updating files:  98% (56451/57603)Updating files:  99% (57027/57603)Updating files: 100% (57603/57603)Updating files: 100% (57603/57603), done.
+++ ls .
+aarch64-linux-android-4.9
+android_system_tools_mkbootimg
+arm-linux-androideabi-4.9
+avb
+halium-boot-ramdisk.img
+linux-x86
+nokia-b2n
+++ cd /home/runner/work/nokia-b2n/nokia-b2n
++ '[' '' = true ']'
++ '[' -n '' ']'
++ true
++ '[' -n '' ']'
++ CC=clang
++ PATH=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/linux-x86/clang-r353983c/bin:/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/aarch64-linux-android-4.9/bin:/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/arm-linux-androideabi-4.9/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ /home/runner/work/nokia-b2n/nokia-b2n/build/build-kernel.sh /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads /home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp/system ''
++ TMPDOWN=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads
++ INSTALL_MOD_PATH=/home/runner/work/nokia-b2n/nokia-b2n/workdir/tmp/system
++ MENUCONFIG=
+++ pwd
++ HERE=/home/runner/work/nokia-b2n/nokia-b2n
++ source /home/runner/work/nokia-b2n/nokia-b2n/deviceinfo
+++ deviceinfo_name='Nokia 7 plus'
+++ deviceinfo_manufacturer='HMD Global'
+++ deviceinfo_codename=B2N
+++ deviceinfo_arch=aarch64
+++ deviceinfo_kernel_arch=arm64
+++ deviceinfo_halium_version=10
+++ deviceinfo_ubuntu_touch_release=24.04-2.x
+++ deviceinfo_kernel_source=https://github.com/Kentajoh/nokia-b2n.git
+++ deviceinfo_kernel_source_branch=halium-10
+++ deviceinfo_kernel_defconfig='vendor/sdm660-perf_defconfig vendor/nokia/nokia.config vendor/nokia/B2N.config halium.config'
+++ deviceinfo_kernel_clang_compile=true
+++ deviceinfo_kernel_image_name=Image.gz-dtb
+++ deviceinfo_flash_pagesize=4096
+++ deviceinfo_flash_offset_base=0x00000000
+++ deviceinfo_flash_offset_kernel=0x00008000
+++ deviceinfo_flash_offset_ramdisk=0x01000000
+++ deviceinfo_flash_offset_second=0x00f00000
+++ deviceinfo_flash_offset_tags=0x00000100
+++ deviceinfo_bootimg_header_version=0
+++ deviceinfo_bootimg_os_version=10.0.0
+++ deviceinfo_bootimg_os_patch_level=2021-03
+++ deviceinfo_bootimg_partition_size=67108864
+++ deviceinfo_bootimg_qcdt=false
+++ deviceinfo_bootimg_append_vbmeta=false
+++ deviceinfo_use_overlaystore=true
+++ deviceinfo_system_partition_size=3000M
+++ deviceinfo_rootfs_image_sector_size=4096
+++ deviceinfo_kernel_cmdline='console=tty0 console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 loop.max_part=7 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 androidboot.boot_devices=soc/c0c4000.sdhci systempart=/dev/mapper/system systemd.unified_cgroup_hierarchy=0'
+++ basename https://github.com/Kentajoh/nokia-b2n.git
++ KERNEL_DIR=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n.git
++ KERNEL_DIR=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n
++ OUT=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ
++ mkdir -p /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ
++ kernel_arch=arm64
++ case "$kernel_arch" in
++ ARCH=arm64
++ '[' -n true ']'
++ true
++ grep -q CLANG_TRIPLE /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/Makefile
++ : arm64-linux-gnu-
++ : arm64-linux-android-
++ export ARCH CLANG_TRIPLE CROSS_COMPILE
++ '[' arm64 == arm64 ']'
++ : arm-linux-androideabi-
++ export CROSS_COMPILE_ARM32
++ MAKEOPTS=
++ '[' -n clang ']'
++ MAKEOPTS=CC=clang
++ '[' -n '' ']'
++ '[' -n '' ']'
++ cd /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n
++ make O=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ CC=clang vendor/sdm660-perf_defconfig vendor/nokia/nokia.config vendor/nokia/B2N.config halium.config
+make[1]: Entering directory '/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ'
+  HOSTCC  scripts/basic/fixdep
+  GEN     ./Makefile
+  HOSTCC  scripts/kconfig/conf.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/zconf.lex.c
+  SHIPPED scripts/kconfig/zconf.hash.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
+  GEN     ./Makefile
+Using .config as base
+Merging /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config
+Value of CONFIG_INITRAMFS_IGNORE_SKIP_FLAG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_INITRAMFS_IGNORE_SKIP_FLAG is not set
+New value: CONFIG_INITRAMFS_IGNORE_SKIP_FLAG=y
+
+Value of CONFIG_PROC_CMDLINE_APPEND_ANDROID_FORCE_NORMAL_BOOT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_PROC_CMDLINE_APPEND_ANDROID_FORCE_NORMAL_BOOT is not set
+New value: CONFIG_PROC_CMDLINE_APPEND_ANDROID_FORCE_NORMAL_BOOT=y
+
+Value of CONFIG_BPF_JIT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_BPF_JIT is not set
+New value: CONFIG_BPF_JIT=y
+
+Value of CONFIG_BPF_SYSCALL is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_BPF_SYSCALL is not set
+New value: CONFIG_BPF_SYSCALL=y
+
+Value of CONFIG_NETFILTER_XT_MATCH_BPF is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NETFILTER_XT_MATCH_BPF is not set
+New value: CONFIG_NETFILTER_XT_MATCH_BPF=y
+
+Value of CONFIG_NETFILTER_XT_MATCH_OWNER is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NETFILTER_XT_MATCH_OWNER is not set
+New value: CONFIG_NETFILTER_XT_MATCH_OWNER=y
+
+Value of CONFIG_NETFILTER_XT_MATCH_QUOTA2_LOG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NETFILTER_XT_MATCH_QUOTA2_LOG is not set
+New value: CONFIG_NETFILTER_XT_MATCH_QUOTA2_LOG=y
+
+Value of CONFIG_NET_ACT_BPF is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NET_ACT_BPF is not set
+New value: CONFIG_NET_ACT_BPF=y
+
+Value of CONFIG_NET_CLS_BPF is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NET_CLS_BPF is not set
+New value: CONFIG_NET_CLS_BPF=y
+
+Value of CONFIG_CPU_FREQ_GOV_SCHEDUTIL is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_CPU_FREQ_GOV_SCHEDUTIL is not set
+New value: CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+
+Value of CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL is not set
+New value: CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL=y
+
+Value of CONFIG_CPU_FREQ_GOV_ONDEMAND is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+New value: CONFIG_CPU_FREQ_GOV_ONDEMAND=n
+
+Value of CONFIG_CPU_FREQ_GOV_INTERACTIVE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CPU_FREQ_GOV_INTERACTIVE=y
+New value: CONFIG_CPU_FREQ_GOV_INTERACTIVE=n
+
+Value of CONFIG_CPU_FREQ_GOV_CONSERVATIVE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+New value: CONFIG_CPU_FREQ_GOV_CONSERVATIVE=n
+
+Value of CONFIG_EXFAT_FS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_EXFAT_FS is not set
+New value: CONFIG_EXFAT_FS=y
+
+Value of CONFIG_NTFS_FS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NTFS_FS is not set
+New value: CONFIG_NTFS_FS=y
+
+Value of CONFIG_INPUT_FINGERPRINT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_INPUT_FINGERPRINT is not set
+New value: CONFIG_INPUT_FINGERPRINT=y
+
+Value of CONFIG_BLK_CGROUP is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_BLK_CGROUP is not set
+New value: CONFIG_BLK_CGROUP=y
+
+Value of CONFIG_IOSCHED_BFQ is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_IOSCHED_BFQ is not set
+New value: CONFIG_IOSCHED_BFQ=y
+
+Value of CONFIG_OVERLAY_FS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_OVERLAY_FS is not set
+New value: CONFIG_OVERLAY_FS=y
+
+Value of CONFIG_SUSPEND_SKIP_SYNC is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_SUSPEND_SKIP_SYNC is not set
+New value: CONFIG_SUSPEND_SKIP_SYNC=y
+
+Value of CONFIG_USB_CONFIGFS_SERIAL is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_USB_CONFIGFS_SERIAL is not set
+New value: CONFIG_USB_CONFIGFS_SERIAL=y
+
+Value of CONFIG_WQ_POWER_EFFICIENT_DEFAULT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_WQ_POWER_EFFICIENT_DEFAULT is not set
+New value: CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y
+
+Value of CONFIG_NFC is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_NFC is not set
+New value: CONFIG_NFC=y
+
+Value of CONFIG_USB_MSM_OTG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_USB_MSM_OTG is not set
+New value: CONFIG_USB_MSM_OTG=y
+
+Value of CONFIG_USB_OTG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_USB_OTG is not set
+New value: CONFIG_USB_OTG=y
+
+Value of CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE is not set
+New value: CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y
+
+Value of CONFIG_CC_OPTIMIZE_FOR_SIZE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+New value: # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+
+Value of CONFIG_PSTORE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_PSTORE is not set
+New value: CONFIG_PSTORE=y
+
+Value of CONFIG_COMPAT_VDSO is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_COMPAT_VDSO is not set
+New value: CONFIG_COMPAT_VDSO=y
+
+Value of CONFIG_QCA_CLD_WLAN is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_QCA_CLD_WLAN is not set
+New value: CONFIG_QCA_CLD_WLAN=y
+
+Value of CONFIG_WIREGUARD is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_WIREGUARD is not set
+New value: CONFIG_WIREGUARD=y
+
+Value of CONFIG_CC_WERROR is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: # CONFIG_CC_WERROR is not set
+New value: CONFIG_CC_WERROR=n
+
+Value of CONFIG_SKY2 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_SKY2=y
+New value: # CONFIG_SKY2 is not set
+
+Value of CONFIG_SMSC911X is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_SMSC911X=y
+New value: # CONFIG_SMSC911X is not set
+
+Value of CONFIG_INPUT_HBTP_INPUT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_INPUT_HBTP_INPUT=y
+New value: # CONFIG_INPUT_HBTP_INPUT is not set
+
+Value of CONFIG_PINCTRL_MSM8998 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_PINCTRL_MSM8998=y
+New value: # CONFIG_PINCTRL_MSM8998 is not set
+
+Value of CONFIG_MSM_QBT1000 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_QBT1000=y
+New value: # CONFIG_MSM_QBT1000 is not set
+
+Value of CONFIG_CGROUP_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CGROUP_DEBUG=y
+New value: # CONFIG_CGROUP_DEBUG is not set
+
+Value of CONFIG_UTS_NS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_UTS_NS=y
+New value: # CONFIG_UTS_NS is not set
+
+Value of CONFIG_VIDEO_ADV_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_VIDEO_ADV_DEBUG=y
+New value: # CONFIG_VIDEO_ADV_DEBUG is not set
+
+Value of CONFIG_MSM_CAMERA_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_CAMERA_DEBUG=y
+New value: # CONFIG_MSM_CAMERA_DEBUG is not set
+
+Value of CONFIG_MSMB_CAMERA_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSMB_CAMERA_DEBUG=y
+New value: # CONFIG_MSMB_CAMERA_DEBUG is not set
+
+Value of CONFIG_MSM_SDE_ROTATOR_EVTLOG_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_SDE_ROTATOR_EVTLOG_DEBUG=y
+New value: # CONFIG_MSM_SDE_ROTATOR_EVTLOG_DEBUG is not set
+
+Value of CONFIG_IOMMU_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_IOMMU_DEBUG=y
+New value: # CONFIG_IOMMU_DEBUG is not set
+
+Value of CONFIG_IOSCHED_TEST is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_IOSCHED_TEST=m
+New value: # CONFIG_IOSCHED_TEST is not set
+
+Value of CONFIG_BRIDGE_NETFILTER is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_BRIDGE_NETFILTER=m
+New value: # CONFIG_BRIDGE_NETFILTER is not set
+
+Value of CONFIG_SCSI_UFS_TEST is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_SCSI_UFS_TEST=m
+New value: # CONFIG_SCSI_UFS_TEST is not set
+
+Value of CONFIG_WIL6210 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_WIL6210=m
+New value: # CONFIG_WIL6210 is not set
+
+Value of CONFIG_MSM_RDBG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_RDBG=m
+New value: # CONFIG_MSM_RDBG is not set
+
+Value of CONFIG_USB_GSPCA is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_USB_GSPCA=m
+New value: # CONFIG_USB_GSPCA is not set
+
+Value of CONFIG_DVB_MPQ is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_DVB_MPQ=m
+New value: # CONFIG_DVB_MPQ is not set
+
+Value of CONFIG_MSM_11AD is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_11AD=m
+New value: # CONFIG_MSM_11AD is not set
+
+Value of CONFIG_TRACING_SUPPORT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_TRACING_SUPPORT=y
+New value: # CONFIG_TRACING_SUPPORT is not set
+
+Value of CONFIG_CMA_DEBUGFS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CMA_DEBUGFS=y
+New value: # CONFIG_CMA_DEBUGFS is not set
+
+Value of CONFIG_RMNET_DATA_DEBUG_PKT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_RMNET_DATA_DEBUG_PKT=y
+New value: # CONFIG_RMNET_DATA_DEBUG_PKT is not set
+
+Value of CONFIG_MSM_IDLE_STATS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_IDLE_STATS=y
+New value: # CONFIG_MSM_IDLE_STATS is not set
+
+Value of CONFIG_FB_MSM_MDSS_XLOG_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_FB_MSM_MDSS_XLOG_DEBUG=y
+New value: # CONFIG_FB_MSM_MDSS_XLOG_DEBUG is not set
+
+Value of CONFIG_MSM_TZ_LOG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_MSM_TZ_LOG=y
+New value: # CONFIG_MSM_TZ_LOG is not set
+
+Value of CONFIG_DEBUG_FS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_DEBUG_FS=y
+New value: # CONFIG_DEBUG_FS is not set
+
+Value of CONFIG_SCHED_DEBUG is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_SCHED_DEBUG=y
+New value: # CONFIG_SCHED_DEBUG is not set
+
+Value of CONFIG_DEBUG_SET_MODULE_RONX is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_DEBUG_SET_MODULE_RONX=y
+New value: # CONFIG_DEBUG_SET_MODULE_RONX is not set
+
+Value of CONFIG_DEBUG_ALIGN_RODATA is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_DEBUG_ALIGN_RODATA=y
+New value: # CONFIG_DEBUG_ALIGN_RODATA is not set
+
+Value of CONFIG_CORESIGHT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/nokia.config:
+Previous value: CONFIG_CORESIGHT=y
+New value: # CONFIG_CORESIGHT is not set
+
+#
+# merged configuration written to .config (needs make)
+#
+  GEN     ./Makefile
+scripts/kconfig/conf  --oldconfig Kconfig
+.config:5317:warning: override: CPU_FREQ_DEFAULT_GOV_SCHEDUTIL changes choice state
+*
+* Restart config...
+*
+*
+* Control Group support
+*
+Control Group support (CGROUPS) [Y/?] y
+  Example debug cgroup subsystem (CGROUP_DEBUG) [N/y/?] n
+  Freezer cgroup subsystem (CGROUP_FREEZER) [Y/n/?] y
+  PIDs cgroup subsystem (CGROUP_PIDS) [N/y/?] n
+  Device controller for cgroups (CGROUP_DEVICE) [N/y/?] n
+  Cpuset support (CPUSETS) [Y/n/?] y
+    Include legacy /proc/<pid>/cpuset file (PROC_PID_CPUSET) [Y/n] y
+  Simple CPU accounting cgroup subsystem (CGROUP_CPUACCT) [Y/n/?] y
+  CFS tasks boosting cgroup subsystem (EXPERIMENTAL) (CGROUP_SCHEDTUNE) [Y/n/?] y
+  CFS tasks boosting cgroup subsystem (EXPERIMENTAL) (CGROUP_SCHEDTUNE) [Y/n/?] y
+  Memory Resource Controller for Control Groups (MEMCG) [N/y/?] n
+  Enable perf_event per-cpu per-container group (cgroup) monitoring (CGROUP_PERF) [N/y/?] n
+  *
+  * Group CPU scheduler
+  *
+  Group CPU scheduler (CGROUP_SCHED) [Y/?] y
+    Group scheduling for SCHED_OTHER (FAIR_GROUP_SCHED) [Y] y
+      CPU bandwidth provisioning for FAIR_GROUP_SCHED (CFS_BANDWIDTH) [N/y/?] n
+    Group scheduling for SCHED_RR/FIFO (RT_GROUP_SCHED) [Y/n/?] y
+  Block IO controller (BLK_CGROUP) [Y/n/?] y
+    Enable Block IO controller debugging (DEBUG_BLK_CGROUP) [N/y/?] (NEW) 
+  Support for eBPF programs attached to cgroups (CGROUP_BPF) [Y/n/?] y
+*
+* General setup
+*
+Cross-compiler tool prefix (CROSS_COMPILE) [] 
+Compile also drivers which will not load (COMPILE_TEST) [N/y/?] n
+Local version - append to kernel release (LOCALVERSION) [-perf] -perf
+Automatically append version information to the version string (LOCALVERSION_AUTO) [N/y/?] n
+Default hostname (DEFAULT_HOSTNAME) [(none)] (none)
+Support for paging of anonymous memory (swap) (SWAP) [Y/n/?] y
+System V IPC (SYSVIPC) [N/y/?] n
+POSIX Message Queues (POSIX_MQUEUE) [N/y/?] n
+Enable process_vm_readv/writev syscalls (CROSS_MEMORY_ATTACH) [Y/n/?] y
+open by fhandle syscalls (FHANDLE) [N/y/?] n
+uselib syscall (USELIB) [N/y/?] n
+Auditing support (AUDIT) [Y/n/?] y
+Enable system-call auditing support (AUDITSYSCALL) [N/y/?] n
+*
+* IRQ subsystem
+*
+Expose hardware/virtual IRQ mapping via debugfs (IRQ_DOMAIN_DEBUG) [N/y/?] n
+*
+* Timers subsystem
+*
+Timer tick handling
+  1. Periodic timer ticks (constant rate, no dynticks) (HZ_PERIODIC)
+> 2. Idle dynticks system (tickless idle) (NO_HZ_IDLE)
+  3. Full dynticks system (tickless) (NO_HZ_FULL)
+choice[1-3]: 2
+Old Idle dynticks config (NO_HZ) [Y/n/?] y
+High Resolution Timer Support (HIGH_RES_TIMERS) [Y/n/?] y
+*
+* CPU/Task time and stats accounting
+*
+Cputime accounting
+  1. Simple tick based cputime accounting (TICK_CPU_ACCOUNTING)
+  2. Full dynticks CPU time accounting (VIRT_CPU_ACCOUNTING_GEN)
+> 3. Fine granularity task level IRQ time accounting (IRQ_TIME_ACCOUNTING)
+choice[1-3]: 3
+Support window based load tracking (SCHED_WALT) [N/y/?] n
+BSD Process Accounting (BSD_PROCESS_ACCT) [N/y/?] n
+Export task/process statistics through netlink (TASKSTATS) [Y/n/?] y
+  Enable per-task delay accounting (TASK_DELAY_ACCT) [N/y/?] n
+  Enable extended accounting over taskstats (TASK_XACCT) [Y/n/?] y
+    Enable per-task storage I/O accounting (TASK_IO_ACCOUNTING) [Y/n/?] y
+*
+* RCU Subsystem
+*
+Make expert-level adjustments to RCU configuration (RCU_EXPERT) [Y/n/?] y
+Tree-based hierarchical RCU fanout value (RCU_FANOUT) [64] 64
+Tree-based hierarchical RCU leaf-level fanout value (RCU_FANOUT_LEAF) [16] 16
+Accelerate last non-dyntick-idle CPU's grace periods (RCU_FAST_NO_HZ) [Y/n/?] y
+Enable RCU priority boosting (RCU_BOOST) [N/y/?] n
+Real-time priority to use for RCU worker threads (RCU_KTHREAD_PRIO) [0] 0
+Offload RCU callback processing from boot-selected CPUs (RCU_NOCB_CPU) [Y/n/?] y
+  Build-forced no-CBs CPUs
+    1. No build_forced no-CBs CPUs (RCU_NOCB_CPU_NONE)
+    2. CPU 0 is a build_forced no-CBs CPU (RCU_NOCB_CPU_ZERO)
+  > 3. All CPUs are build_forced no-CBs CPUs (RCU_NOCB_CPU_ALL)
+  choice[1-3?]: 3
+Kernel .config support (IKCONFIG) [Y/n/m/?] y
+  Enable access to .config through /proc/config.gz (IKCONFIG_PROC) [Y/n/?] y
+Kernel log buffer size (16 => 64KB, 17 => 128KB) (LOG_BUF_SHIFT) [17] 17
+Enable console flush configurable in hot plug code path (CONSOLE_FLUSH_ON_HOTPLUG) [N/y/?] n
+CPU kernel log buffer size contribution (13 => 8 KB, 17 => 128KB) (LOG_CPU_MAX_BUF_SHIFT) [17] 17
+*
+* Control Group support
+*
+Control Group support (CGROUPS) [Y/?] y
+  Example debug cgroup subsystem (CGROUP_DEBUG) [N/y/?] n
+  Freezer cgroup subsystem (CGROUP_FREEZER) [Y/n/?] y
+  PIDs cgroup subsystem (CGROUP_PIDS) [N/y/?] n
+  Device controller for cgroups (CGROUP_DEVICE) [N/y/?] n
+  Cpuset support (CPUSETS) [Y/n/?] y
+    Include legacy /proc/<pid>/cpuset file (PROC_PID_CPUSET) [Y/n] y
+  Simple CPU accounting cgroup subsystem (CGROUP_CPUACCT) [Y/n/?] y
+  CFS tasks boosting cgroup subsystem (EXPERIMENTAL) (CGROUP_SCHEDTUNE) [Y/n/?] y
+  CFS tasks boosting cgroup subsystem (EXPERIMENTAL) (CGROUP_SCHEDTUNE) [Y/n/?] y
+  Memory Resource Controller for Control Groups (MEMCG) [N/y/?] n
+  Enable perf_event per-cpu per-container group (cgroup) monitoring (CGROUP_PERF) [N/y/?] n
+  *
+  * Group CPU scheduler
+  *
+  Group CPU scheduler (CGROUP_SCHED) [Y/?] y
+    Group scheduling for SCHED_OTHER (FAIR_GROUP_SCHED) [Y] y
+      CPU bandwidth provisioning for FAIR_GROUP_SCHED (CFS_BANDWIDTH) [N/y/?] n
+    Group scheduling for SCHED_RR/FIFO (RT_GROUP_SCHED) [Y/n/?] y
+  Block IO controller (BLK_CGROUP) [Y/n/?] y
+    Enable Block IO controller debugging (DEBUG_BLK_CGROUP) [N/y/?] n
+  Support for eBPF programs attached to cgroups (CGROUP_BPF) [Y/n/?] y
+Scheduler support for heterogenous multi-processor systems (SCHED_HMP) [Y/n/?] y
+  CPU C-state aware scheduler (SCHED_HMP_CSTATE_AWARE) [Y/n/?] y
+QTI Core Control (SCHED_CORE_CTL) [Y/n/?] y
+Checkpoint/restore support (CHECKPOINT_RESTORE) [N/y/?] n
+*
+* Namespaces support
+*
+Namespaces support (NAMESPACES) [Y/n/?] y
+  UTS namespace (UTS_NS) [N/y/?] n
+  User namespace (USER_NS) [N/y/?] n
+  PID Namespaces (PID_NS) [N/y/?] n
+  Network namespace (NET_NS) [Y/n/?] y
+Automatic process group scheduling (SCHED_AUTOGROUP) [Y/n/?] y
+Boosting for CFS tasks (EXPERIMENTAL) (SCHED_TUNE) [Y/n/?] y
+Default to enabling the Energy Aware Scheduler feature (DEFAULT_USE_ENERGY_AWARE) [N/y/?] n
+Enable deprecated sysfs features to support old userspace tools (SYSFS_DEPRECATED) [N/y/?] n
+Kernel->user space relay support (formerly relayfs) (RELAY) [N/y/?] n
+Initial RAM filesystem and RAM disk (initramfs/initrd) support (BLK_DEV_INITRD) [Y/n/?] y
+  Initramfs source file(s) (INITRAMFS_SOURCE) [] 
+  Force initramfs even when skip_initramfs is set (INITRAMFS_IGNORE_SKIP_FLAG) [Y/n/?] y
+  Support initial ramdisks compressed using gzip (RD_GZIP) [Y/n/?] y
+  Support initial ramdisks compressed using bzip2 (RD_BZIP2) [Y/n/?] y
+  Support initial ramdisks compressed using LZMA (RD_LZMA) [Y/n/?] y
+  Support initial ramdisks compressed using XZ (RD_XZ) [N/y/?] n
+  Support initial ramdisks compressed using LZO (RD_LZO) [N/y/?] n
+  Support initial ramdisks compressed using LZ4 (RD_LZ4) [N/y/?] n
+Compiler optimization level
+> 1. Optimize for performance (CC_OPTIMIZE_FOR_PERFORMANCE)
+  2. Optimize for size (CC_OPTIMIZE_FOR_SIZE)
+choice[1-2]: 1
+*
+* Configure standard kernel features (expert users)
+*
+Configure standard kernel features (expert users) (EXPERT) [Y/?] y
+  Enable 16-bit UID system calls (UID16) [Y/n/?] y
+  Multiple users, groups and capabilities support (MULTIUSER) [Y/n/?] y
+  sgetmask/ssetmask syscalls support (SGETMASK_SYSCALL) [N/y/?] n
+  Sysfs syscall support (SYSFS_SYSCALL) [Y/n/?] y
+  Sysctl syscall support (SYSCTL_SYSCALL) [N/y/?] n
+  Load all symbols for debugging/ksymoops (KALLSYMS) [Y/n/?] y
+    Include all symbols in kallsyms (KALLSYMS_ALL) [Y/n/?] y
+  Enable support for printk (PRINTK) [Y/n/?] y
+  BUG() support (BUG) [Y/?] y
+  Enable ELF core dumps (ELF_CORE) [Y/n/?] y
+  Enable full-sized data structures for core (BASE_FULL) [Y/n/?] y
+  Enable futex support (FUTEX) [Y/n/?] y
+  Enable eventpoll support (EPOLL) [Y/n/?] y
+  Enable signalfd() system call (SIGNALFD) [Y/n/?] y
+  Enable timerfd() system call (TIMERFD) [Y/n/?] y
+  Enable eventfd() system call (EVENTFD) [Y/n/?] y
+Enable bpf() system call (BPF_SYSCALL) [Y/n/?] y
+  Permanently enable BPF JIT and remove BPF interpreter (BPF_JIT_ALWAYS_ON) [Y/n/?] y
+Use full shmem filesystem (SHMEM) [Y/n/?] y
+Enable AIO support (AIO) [Y/n/?] y
+Enable madvise/fadvise syscalls (ADVISE_SYSCALLS) [Y/n/?] y
+Disable unprivileged BPF by default (BPF_UNPRIV_DEFAULT_OFF) [N/y/?] (NEW) 
+Enable userfaultfd() system call (USERFAULTFD) [N/y/?] n
+Enable PCI quirk workarounds (PCI_QUIRKS) [Y/n/?] y
+Enable membarrier() system call (MEMBARRIER) [N/y/?] n
+Embedded system (EMBEDDED) [Y/n/?] y
+*
+* Kernel Performance Events And Counters
+*
+Kernel performance events and counters (PERF_EVENTS) [Y/n/?] y
+  Debug: use vmalloc to back perf mmap() buffers (DEBUG_PERF_USE_VMALLOC) [N/y/?] n
+Enable VM event counters for /proc/vmstat (VM_EVENT_COUNTERS) [Y/n/?] y
+Enable SLUB debugging support (SLUB_DEBUG) [N/y/?] n
+Disable heap randomization (COMPAT_BRK) [N/y/?] n
+Choose SLAB allocator
+  1. SLAB (SLAB)
+> 2. SLUB (Unqueued Allocator) (SLUB)
+  3. SLOB (Simple Allocator) (SLOB)
+choice[1-3?]: 2
+SLUB per cpu partial cache (SLUB_CPU_PARTIAL) [Y/n/?] y
+Profiling support (PROFILING) [Y/n/?] y
+Kprobes (KPROBES) [N/y/?] n
+Optimize very unlikely/likely branches (JUMP_LABEL) [N/y/?] n
+Stack Protector buffer overflow detection
+  1. None (CC_STACKPROTECTOR_NONE)
+  2. Regular (CC_STACKPROTECTOR_REGULAR)
+> 3. Strong (CC_STACKPROTECTOR_STRONG)
+choice[1-3?]: 3
+Number of bits to use for ASLR of mmap base address (ARCH_MMAP_RND_BITS) [18] 18
+Number of bits to use for ASLR of mmap base address for compatible applications (ARCH_MMAP_RND_COMPAT_BITS) [16] 16
+*
+* GCOV-based kernel profiling
+*
+Enable gcov-based kernel profiling (GCOV_KERNEL) [N/y/?] n
+*
+* Enable the block layer
+*
+Enable the block layer (BLOCK) [Y/n/?] y
+  Block layer SG support v4 (BLK_DEV_BSG) [Y/n/?] y
+  Block layer SG support v4 helper lib (BLK_DEV_BSGLIB) [N/y/?] n
+  Block layer data integrity support (BLK_DEV_INTEGRITY) [N/y/?] n
+  Block layer bio throttling support (BLK_DEV_THROTTLING) [N/y/?] (NEW) 
+  Block device command line partition parser (BLK_CMDLINE_PARSER) [N/y/?] n
+  Enable Block device performance measurement framework (BLOCK_PERF_FRAMEWORK) [N/y/?] n
+  *
+  * Partition Types
+  *
+  Advanced partition selection (PARTITION_ADVANCED) [Y/n/?] y
+    Acorn partition support (ACORN_PARTITION) [N/y/?] n
+    AIX basic partition table support (AIX_PARTITION) [N/y/?] n
+    Alpha OSF partition support (OSF_PARTITION) [N/y/?] n
+    Amiga partition table support (AMIGA_PARTITION) [N/y/?] n
+    Atari partition table support (ATARI_PARTITION) [N/y/?] n
+    Macintosh partition map support (MAC_PARTITION) [N/y/?] n
+    PC BIOS (MSDOS partition tables) support (MSDOS_PARTITION) [Y/n/?] y
+      BSD disklabel (FreeBSD partition tables) support (BSD_DISKLABEL) [N/y/?] n
+      Minix subpartition support (MINIX_SUBPARTITION) [N/y/?] n
+      Solaris (x86) partition table support (SOLARIS_X86_PARTITION) [N/y/?] n
+      Unixware slices support (UNIXWARE_DISKLABEL) [N/y/?] n
+    Windows Logical Disk Manager (Dynamic Disk) support (LDM_PARTITION) [N/y/?] n
+    SGI partition support (SGI_PARTITION) [N/y/?] n
+    Ultrix partition table support (ULTRIX_PARTITION) [N/y/?] n
+    Sun partition tables support (SUN_PARTITION) [N/y/?] n
+    Karma Partition support (KARMA_PARTITION) [N/y/?] n
+    EFI GUID Partition support (EFI_PARTITION) [Y/n/?] y
+    SYSV68 partition table support (SYSV68_PARTITION) [N/y/?] n
+    Command line partition support (CMDLINE_PARTITION) [N/y/?] n
+  *
+  * IO Schedulers
+  *
+  Test I/O scheduler (IOSCHED_TEST) [N/m/y/?] n
+  Deadline I/O scheduler (IOSCHED_DEADLINE) [Y/n/m/?] y
+  CFQ I/O scheduler (IOSCHED_CFQ) [Y/n/m/?] y
+    CFQ Group Scheduling support (CFQ_GROUP_IOSCHED) [N/y/?] (NEW) 
+  BFQ I/O scheduler (IOSCHED_BFQ) [Y/n/m/?] y
+    BFQ hierarchical scheduling support (BFQ_GROUP_IOSCHED) [N/y/?] (NEW) 
+  Default I/O scheduler
+    1. Deadline (DEFAULT_DEADLINE)
+  > 2. CFQ (DEFAULT_CFQ)
+    3. BFQ (DEFAULT_BFQ) (NEW)
+    4. No-op (DEFAULT_NOOP)
+  choice[1-4?]: *
+* NFC subsystem support
+*
+NFC subsystem support (NFC) [Y/n/m/?] y
+  NFC Digital Protocol stack support (NFC_DIGITAL) [N/m/y/?] (NEW) 
+  NCI protocol support (NFC_NCI) [N/m/y/?] (NEW) 
+  NFC HCI implementation (NFC_HCI) [N/m/y/?] (NEW) 
+  *
+  * Near Field Communication (NFC) devices
+  *
+  NXP PN533 USB driver (NFC_PN533) [N/m/y/?] (NEW) 
+  NFC hardware simulator driver (NFC_SIM) [N/m/y/?] (NEW) 
+  Samsung NFC driver (SEC_NFC) [Y/n/?] (NEW) 
+    SEC NFC Products
+      1. RN3 (SEC_NFC_PRODUCT_N3) (NEW)
+    > 2. RN5/RNx (SEC_NFC_PRODUCT_N5) (NEW)
+    choice[1-2]:     SEC NFC Interface
+      1. UART (SEC_NFC_IF_UART) (NEW)
+    > 2. I2C (SEC_NFC_IF_I2C) (NEW)
+      3. I2C-GPIO (S/W-I2C) (SEC_NFC_IF_I2C_GPIO) (NEW)
+    choice[1-3]:   SEC NFC CLK REQ (SEC_NFC_CLK_REQ) [N/y/?] (NEW) 
+*
+* Fingerprints
+*
+Fingerprints (INPUT_FINGERPRINT) [Y/n/?] y
+  Cdfinger driver (FINGERPRINT_CDFINGER) [N/m/y/?] (NEW) 
+  ELAN 614R Driver (FINGERPRINT_614R) [N/y/?] (NEW) 
+  FPC 1020 Driver (FINGERPRINT_FPC1020) [N/y/?] (NEW) 
+  Finger print card focaltech FT9362 (FINGERPRINT_FT9362) [N/m/y/?] (NEW) 
+  Goodix GF5288 Driver (FINGERPRINT_GF5288) [N/y/?] (NEW) 
+*
+* USB support
+*
+USB support (USB_SUPPORT) [Y/n/?] y
+  Support for Host-side USB (USB) [Y/n/m/?] y
+    USB announce new devices (USB_ANNOUNCE_NEW_DEVICES) [Y/n/?] y
+    *
+    * Miscellaneous USB options
+    *
+    Enable USB persist by default (USB_DEFAULT_PERSIST) [Y/n/?] y
+    Dynamic USB minor allocation (USB_DYNAMIC_MINORS) [N/y/?] n
+    OTG support (USB_OTG) [Y/n/?] y
+    Rely on OTG and EH Targeted Peripherals List (USB_OTG_WHITELIST) [N/y/?] n
+    Disable external hubs (USB_OTG_BLACKLIST_HUB) [N/y/?] n
+    USB 2.0 OTG FSM implementation (USB_OTG_FSM) [N/m/y/?] (NEW) 
+    USB ULPI PHY interface support (USB_ULPI_BUS) [N/m/y/?] n
+    USB Monitor (USB_MON) [N/m/y/?] n
+    Support WUSB Cable Based Association (CBA) (USB_WUSB_CBAF) [N/m/y/?] n
+    *
+    * USB Host Controller Drivers
+    *
+    Cypress C67x00 HCD support (USB_C67X00_HCD) [N/m/y/?] n
+    xHCI HCD (USB 3.0) support (USB_XHCI_HCD) [Y/n/m/?] y
+      Generic xHCI driver for a platform device (USB_XHCI_PLATFORM) [Y/?] y
+    EHCI HCD (USB 2.0) support (USB_EHCI_HCD) [Y/n/m/?] y
+      Root Hub Transaction Translators (USB_EHCI_ROOT_HUB_TT) [N/y/?] n
+      Improved Transaction Translator scheduling (USB_EHCI_TT_NEWSCHED) [Y/n/?] y
+    Support for Qualcomm QSD/MSM on-chip EHCI USB controller (USB_EHCI_MSM) [N/m/y/?] n
+    Generic EHCI driver for a platform device (USB_EHCI_HCD_PLATFORM) [Y/n/m/?] y
+    OXU210HP HCD support (USB_OXU210HP_HCD) [N/m/y/?] n
+    ISP116X HCD support (USB_ISP116X_HCD) [N/m/y/?] n
+    ISP1362 HCD support (USB_ISP1362_HCD) [N/m/y/?] n
+    FOTG210 HCD support (USB_FOTG210_HCD) [N/m/y/?] n
+    MAX3421 HCD (USB-over-SPI) support (USB_MAX3421_HCD) [N/m/y/?] n
+    OHCI HCD (USB 1.1) support (USB_OHCI_HCD) [Y/n/m/?] y
+      OHCI support for PCI-bus USB controllers (USB_OHCI_HCD_PCI) [Y/n/m/?] y
+      Generic OHCI driver for a platform device (USB_OHCI_HCD_PLATFORM) [Y/n/m/?] y
+    UHCI HCD (most Intel and VIA) support (USB_UHCI_HCD) [N/m/y/?] n
+    SL811HS HCD support (USB_SL811_HCD) [N/m/y/?] n
+    R8A66597 HCD support (USB_R8A66597_HCD) [N/m/y/?] n
+    HCD test mode support (USB_HCD_TEST_MODE) [N/y/?] n
+    *
+    * USB Device Class drivers
+    *
+    USB Modem (CDC ACM) support (USB_ACM) [N/m/y/?] n
+    USB Printer support (USB_PRINTER) [N/m/y/?] n
+    USB Wireless Device Management support (USB_WDM) [N/m/y/?] n
+    USB Test and Measurement Class support (USB_TMC) [N/m/y/?] n
+    *
+    * NOTE: USB_STORAGE depends on SCSI but BLK_DEV_SD may
+    *
+    *
+    * also be needed; see USB_STORAGE Help for more info
+    *
+    USB Mass Storage support (USB_STORAGE) [Y/n/m/?] y
+      USB Mass Storage verbose debug (USB_STORAGE_DEBUG) [N/y/?] n
+      Realtek Card Reader support (USB_STORAGE_REALTEK) [N/m/y/?] n
+      Datafab Compact Flash Reader support (USB_STORAGE_DATAFAB) [N/m/y/?] n
+      Freecom USB/ATAPI Bridge support (USB_STORAGE_FREECOM) [N/m/y/?] n
+      ISD-200 USB/ATA Bridge support (USB_STORAGE_ISD200) [N/m/y/?] n
+      USBAT/USBAT02-based storage support (USB_STORAGE_USBAT) [N/m/y/?] n
+      SanDisk SDDR-09 (and other SmartMedia, including DPCM) support (USB_STORAGE_SDDR09) [N/m/y/?] n
+      SanDisk SDDR-55 SmartMedia support (USB_STORAGE_SDDR55) [N/m/y/?] n
+      Lexar Jumpshot Compact Flash Reader (USB_STORAGE_JUMPSHOT) [N/m/y/?] n
+      Olympus MAUSB-10/Fuji DPC-R1 support (USB_STORAGE_ALAUDA) [N/m/y/?] n
+      Support OneTouch Button on Maxtor Hard Drives (USB_STORAGE_ONETOUCH) [N/m/y/?] n
+      Support for Rio Karma music player (USB_STORAGE_KARMA) [N/m/y/?] n
+      SAT emulation on Cypress USB/ATA Bridge with ATACB (USB_STORAGE_CYPRESS_ATACB) [N/m/y/?] n
+      USB ENE card reader support (USB_STORAGE_ENE_UB6250) [N/m/y/?] n
+      USB Attached SCSI (USB_UAS) [N/m/y/?] n
+    *
+    * USB Imaging devices
+    *
+    USB Mustek MDC800 Digital Camera support (USB_MDC800) [N/m/y/?] n
+    Microtek X6USB scanner support (USB_MICROTEK) [N/m/y/?] n
+    USB/IP support (USBIP_CORE) [N/m/y/?] n
+  Inventra Highspeed Dual Role Controller (TI, ADI, AW, ...) (USB_MUSB_HDRC) [N/m/y/?] n
+  DesignWare USB3 DRD Core Support (USB_DWC3) [Y/n/m/?] y
+    DWC3 Mode Selection
+      1. Host only mode (USB_DWC3_HOST)
+      2. Gadget only mode (USB_DWC3_GADGET)
+    > 3. Dual Role mode (USB_DWC3_DUAL_ROLE)
+    choice[1-3]: 3
+    *
+    * Platform Glue Driver Support
+    *
+    PCIe-based Platforms (USB_DWC3_PCI) [Y/n/m/?] y
+    Qualcomm Platforms (USB_DWC3_QCOM) [Y/n/m/?] y
+  DesignWare USB2 DRD Core Support (USB_DWC2) [N/m/y/?] n
+  ChipIdea Highspeed Dual Role Controller (USB_CHIPIDEA) [N/m/y/?] n
+  NXP ISP 1760/1761 support (USB_ISP1760) [Y/n/m/?] y
+  ISP1760 Mode Selection
+  > 1. Host only mode (USB_ISP1760_HOST_ROLE)
+    2. Gadget only mode (USB_ISP1760_GADGET_ROLE)
+    3. Dual Role mode (USB_ISP1760_DUAL_ROLE)
+  choice[1-3]: 1
+  *
+  * USB Power Delivery
+  *
+  USB Power Delivery Protocol and Policy Engine (USB_PD_POLICY) [Y/n/m/?] y
+  QPNP USB Power Delivery PHY (QPNP_USB_PDPHY) [Y/n/m/?] y
+  *
+  * USB port drivers
+  *
+  *
+  * USB Serial Converter support
+  *
+  USB Serial Converter support (USB_SERIAL) [N/m/y/?] n
+  *
+  * USB Miscellaneous drivers
+  *
+  EMI 6|2m USB Audio interface support (USB_EMI62) [N/m/y/?] n
+  EMI 2|6 USB Audio interface support (USB_EMI26) [N/m/y/?] n
+  ADU devices from Ontrak Control Systems (USB_ADUTUX) [N/m/y/?] n
+  USB 7-Segment LED Display (USB_SEVSEG) [N/m/y/?] n
+  USB Lego Infrared Tower support (USB_LEGOTOWER) [N/m/y/?] n
+  USB LCD driver support (USB_LCD) [N/m/y/?] n
+  USB LED driver support (USB_LED) [N/m/y/?] n
+  Cypress CY7C63xxx USB driver support (USB_CYPRESS_CY7C63) [N/m/y/?] n
+  Cypress USB thermometer driver support (USB_CYTHERM) [N/m/y/?] n
+  Siemens ID USB Mouse Fingerprint sensor support (USB_IDMOUSE) [N/m/y/?] n
+  Elan PCMCIA CardBus Adapter USB Client (USB_FTDI_ELAN) [N/m/y/?] n
+  Apple Cinema Display support (USB_APPLEDISPLAY) [N/m/y/?] n
+  USB 2.0 SVGA dongle support (Net2280/SiS315) (USB_SISUSBVGA) [N/m/y/?] n
+  USB LD driver (USB_LD) [N/m/y/?] n
+  PlayStation 2 Trance Vibrator driver support (USB_TRANCEVIBRATOR) [N/m/y/?] n
+  IO Warrior driver support (USB_IOWARRIOR) [N/m/y/?] n
+  USB testing driver (USB_TEST) [N/m/y/?] n
+  USB EHSET Test Fixture driver (USB_EHSET_TEST_FIXTURE) [Y/n/m/?] y
+  iSight firmware loading support (USB_ISIGHTFW) [N/m/y/?] n
+  USB YUREX driver support (USB_YUREX) [N/m/y/?] n
+  Functions for loading firmware on EZUSB chips (USB_EZUSB_FX2) [N/m/y/?] n
+  USB3503 HSIC to USB20 Driver (USB_HSIC_USB3503) [N/m/y/?] n
+  USB Link Layer Test driver (USB_LINK_LAYER_TEST) [N/m/y/?] n
+  ChaosKey random number generator driver support (USB_CHAOSKEY) [N/m/y/?] n
+  USB QTI kick start bridge (USB_QTI_KS_BRIDGE) [N/m/y/?] n
+  USB QTI diagnostic bridge driver (USB_QCOM_DIAG_BRIDGE) [N/m/y/?] n
+  *
+  * USB Physical Layer drivers
+  *
+  Hold a wakelock when USB connected (USB_OTG_WAKELOCK) [Y/n/?] y
+  NOP USB Transceiver Driver (NOP_USB_XCEIV) [Y/n/m/?] y
+  GPIO based peripheral-only VBUS sensing 'transceiver' (USB_GPIO_VBUS) [N/m/y/?] n
+  NXP ISP1301 USB transceiver support (USB_ISP1301) [N/m/y/?] n
+  Qualcomm on-chip USB OTG controller support (USB_MSM_OTG) [Y/n/m/?] y
+  Qualcomm APQ8016/MSM8916 on-chip USB PHY controller support (USB_QCOM_8X16_PHY) [N/m/y/?] n
+  MSM HSUSB PHY Driver (USB_MSM_HSPHY) [N/m/y/?] n
+  MSM SSUSB PHY Driver (USB_MSM_SSPHY) [N/m/y/?] n
+  MSM SSUSB QMP PHY Driver (USB_MSM_SSPHY_QMP) [Y/n/m/?] y
+  MSM QUSB2 PHY Driver (MSM_QUSB_PHY) [Y/n/m/?] y
+  Generic ULPI Transceiver Driver (USB_ULPI) [N/y/?] n
+  Generic DUAL ROLE sysfs interface (DUAL_ROLE_USB_INTF) [Y/n/?] y
+  *
+  * USB Gadget Support
+  *
+  USB Gadget Support (USB_GADGET) [Y/n/m/?] y
+    Debugging messages (DEVELOPMENT) (USB_GADGET_DEBUG) [N/y/?] n
+    Debugging information files (DEVELOPMENT) (USB_GADGET_DEBUG_FILES) [N/y/?] n
+    Debugging information files in debugfs (DEVELOPMENT) (USB_GADGET_DEBUG_FS) [N/y/?] n
+    Maximum VBUS Power usage (2-500 mA) (USB_GADGET_VBUS_DRAW) [500] 500
+    Number of storage pipeline buffers (USB_GADGET_STORAGE_NUM_BUFFERS) [2] 2
+    *
+    * USB Peripheral Controller
+    *
+    Faraday FOTG210 USB Peripheral Controller (USB_FOTG210_UDC) [N/m/y/?] n
+    Aeroflex Gaisler GRUSBDC USB Peripheral Controller Driver (USB_GR_UDC) [N/m/y/?] n
+    Renesas R8A66597 USB Peripheral Controller (USB_R8A66597) [N/m/y/?] n
+    PXA 27x (USB_PXA27X) [N/m/y/?] n
+    Marvell USB2.0 Device Controller (USB_MV_UDC) [N/m/y/?] n
+    MARVELL PXA2128 USB 3.0 controller (USB_MV_U3D) [N/m/y/?] n
+    Renesas M66592 USB Peripheral Controller (USB_M66592) [N/m/y/?] n
+    Broadcom USB3.0 device controller IP driver(BDC) (USB_BDC_UDC) [N/m/y/?] n
+    AMD5536 UDC (USB_AMD5536UDC) [N/m/y/?] n
+    PLX NET2272 (USB_NET2272) [N/m/y/?] n
+    NetChip 228x / PLX USB338x (USB_NET2280) [N/m/y/?] n
+    Toshiba TC86C001 'Goku-S' (USB_GOKU) [N/m/y/?] n
+    Intel QUARK X1000/EG20T PCH/LAPIS Semiconductor IOH(ML7213/ML7831) UDC (USB_EG20T) [N/m/y/?] n
+    Xilinx USB Driver (USB_GADGET_XILINX) [N/m/y/?] n
+    Dummy HCD (DEVELOPMENT) (USB_DUMMY_HCD) [N/m/y/?] n
+    USB Gadget Drivers [Y/m/?] y
+    USB Gadget Drivers
+    > 1. USB functions configurable through configfs (USB_CONFIGFS)
+      2. Gadget Zero (DEVELOPMENT) (USB_ZERO)
+      3. Audio Gadget (USB_AUDIO)
+      4. Ethernet Gadget (with CDC Ethernet support) (USB_ETH)
+      5. Network Control Model (NCM) support (USB_G_NCM)
+      6. Gadget Filesystem (USB_GADGETFS)
+      7. Function Filesystem (USB_FUNCTIONFS)
+      8. Mass Storage Gadget (USB_MASS_STORAGE)
+      9. Serial Gadget (with CDC ACM and CDC OBEX support) (USB_G_SERIAL)
+      10. MIDI Gadget (USB_MIDI_GADGET)
+      11. Printer Gadget (USB_G_PRINTER)
+      12. CDC Composite Device (Ethernet and ACM) (USB_CDC_COMPOSITE)
+      13. CDC Composite Device (ACM and mass storage) (USB_G_ACM_MS)
+      14. Multifunction Composite Gadget (USB_G_MULTI)
+      15. HID Gadget (USB_G_HID)
+      16. EHCI Debug Device Gadget (USB_G_DBGP)
+      17. USB Webcam Gadget (USB_G_WEBCAM)
+    choice[1-17?]: 1
+      Generic serial bulk in/out (USB_CONFIGFS_SERIAL) [Y/n/?] y
+      Abstract Control Model (CDC ACM) (USB_CONFIGFS_ACM) [N/y/?] n
+      Object Exchange Model (CDC OBEX) (USB_CONFIGFS_OBEX) [N/y/?] n
+      Network Control Model (CDC NCM) (USB_CONFIGFS_NCM) [Y/n/?] y
+      Ethernet Control Model (CDC ECM) (USB_CONFIGFS_ECM) [N/y/?] n
+      Ethernet Control Model (CDC ECM) subset (USB_CONFIGFS_ECM_SUBSET) [N/y/?] n
+      QCRNDIS (USB_CONFIGFS_QCRNDIS) [Y/n] y
+      RNDIS (USB_CONFIGFS_RNDIS) [N/y/?] n
+      RMNET (USB_CONFIGFS_RMNET_BAM) [Y/n] y
+      Ethernet Emulation Model (EEM) (USB_CONFIGFS_EEM) [N/y/?] n
+      Mass storage (USB_CONFIGFS_MASS_STORAGE) [Y/n/?] y
+      Loopback and sourcesink function (for testing) (USB_CONFIGFS_F_LB_SS) [N/y/?] n
+      Function filesystem (FunctionFS) (USB_CONFIGFS_F_FS) [Y/n/?] y
+      MTP gadget (USB_CONFIGFS_F_MTP) [Y/n/?] y
+        PTP gadget (USB_CONFIGFS_F_PTP) [Y/n/?] y
+      Accessory gadget (USB_CONFIGFS_F_ACC) [Y/n/?] y
+        Audio Source gadget (USB_CONFIGFS_F_AUDIO_SRC) [Y/n/?] y
+      Uevent notification of Gadget state (USB_CONFIGFS_UEVENT) [Y/n/?] y
+      Audio Class 1.0 (USB_CONFIGFS_F_UAC1) [N/y/?] n
+      Audio Class 1.0 (legacy implementation) (USB_CONFIGFS_F_UAC1_LEGACY) [N/y/?] n
+      Audio Class 2.0 (USB_CONFIGFS_F_UAC2) [N/y/?] n
+      MIDI function (USB_CONFIGFS_F_MIDI) [Y/n/?] y
+      HID function (USB_CONFIGFS_F_HID) [Y/n/?] y
+      USB Webcam function (USB_CONFIGFS_F_UVC) [N/y/?] n
+      Printer function (USB_CONFIGFS_F_PRINTER) [N/y/?] n
+      USB Diag function (USB_CONFIGFS_F_DIAG) [Y/n/?] y
+      USB GSI function (USB_CONFIGFS_F_GSI) [N/y/?] n
+      USB Serial Character function (USB_CONFIGFS_F_CDEV) [Y/n/?] y
+      USB QDSS function (USB_CONFIGFS_F_QDSS) [Y/n/?] y
+      USB CCID function (USB_CONFIGFS_F_CCID) [N/y/?] n
+  USB LED Triggers (USB_LED_TRIG) [N/y/?] n
+*
+* Staging drivers
+*
+Staging drivers (STAGING) [Y/n/?] y
+  Prism2.5/3 USB driver (PRISM2_USB) [N/m/y/?] n
+  Data acquisition support (comedi) (COMEDI) [N/m/?] n
+  RealTek RTL8192U Wireless LAN NIC driver (RTL8192U) [N/m/?] n
+  Support for rtllib wireless devices (RTLLIB) [N/m/?] n
+  RealTek RTL8712U (RTL8192SU) Wireless LAN NIC driver (R8712U) [N/m/y/?] n
+  Realtek RTL8188EU Wireless LAN NIC driver (R8188EU) [N/m/y/?] n
+  Realtek RTL8723AU Wireless LAN NIC driver (R8723AU) [N/m/y/?] n
+  Realtek PCI-E Card Reader RTS5208/5288 support (RTS5208) [N/m/y/?] n
+  *
+  * IIO staging drivers
+  *
+  *
+  * Accelerometers
+  *
+  Analog Devices ADIS16201 Dual-Axis Digital Inclinometer and Accelerometer (ADIS16201) [N/m/y/?] n
+  Analog Devices ADIS16203 Programmable 360 Degrees Inclinometer (ADIS16203) [N/m/y/?] n
+  Analog Devices ADIS16204 Programmable High-g Digital Impact Sensor and Recorder (ADIS16204) [N/m/y/?] n
+  Analog Devices ADIS16209 Dual-Axis Digital Inclinometer and Accelerometer (ADIS16209) [N/m/y/?] n
+  Analog Devices ADIS16220 Programmable Digital Vibration Sensor (ADIS16220) [N/m/y/?] n
+  Analog Devices ADIS16240 Programmable Impact Sensor and Recorder (ADIS16240) [N/m/y/?] n
+  ST Microelectronics LIS3L02DQ Accelerometer Driver (LIS3L02DQ) [N/m/y/?] n
+  *
+  * Analog to digital converters
+  *
+  Analog Devices AD7606 ADC driver (AD7606) [N/m/y/?] n
+  Analog Devices AD7780 and similar ADCs driver (AD7780) [N/m/y/?] n
+  Analog Devices AD7816/7/8 temperature sensor and ADC driver (AD7816) [N/m/y/?] n
+  Analog Devices AD7190 AD7192 AD7195 ADC driver (AD7192) [N/m/y/?] n
+  Analog Devices AD7280A Lithium Ion Battery Monitoring System (AD7280) [N/m/y/?] n
+  *
+  * Analog digital bi-direction converters
+  *
+  Analog Devices ADT7316/7/8 ADT7516/7/9 temperature sensor, ADC and DAC driver (ADT7316) [N/m/y/?] n
+  *
+  * Capacitance to digital converters
+  *
+  Analog Devices ad7150/1/6 capacitive sensor driver (AD7150) [N/m/y/?] n
+  Analog Devices ad7152/3 capacitive sensor driver (AD7152) [N/m/y/?] n
+  Analog Devices AD7745, AD7746 AD7747 capacitive sensor driver (AD7746) [N/m/y/?] n
+  *
+  * Direct Digital Synthesis
+  *
+  Analog Devices ad9832/5 driver (AD9832) [N/m/y/?] n
+  Analog Devices AD9833/4/7/8 driver (AD9834) [N/m/y/?] n
+  *
+  * Digital gyroscope sensors
+  *
+  Analog Devices ADIS16060 Yaw Rate Gyroscope with SPI driver (ADIS16060) [N/m/y/?] n
+  *
+  * Network Analyzer, Impedance Converters
+  *
+  Analog Devices AD5933, AD5934 driver (AD5933) [N/m/y/?] n
+  *
+  * Light sensors
+  *
+  ISL 29018 light and proximity sensor (SENSORS_ISL29018) [N/m/y/?] n
+  Intersil ISL29028 Concurrent Light and Proximity Sensor (SENSORS_ISL29028) [N/m/y/?] n
+  TAOS TSL2580, TSL2581 and TSL2583 light-to-digital converters (TSL2583) [N/m/y/?] n
+  TAOS TSL/TMD2x71 and TSL/TMD2x72 Family of light and proximity sensors (TSL2x7x) [N/m/y/?] n
+  *
+  * Magnetometer sensors
+  *
+  Honeywell HMC5843/5883/5883L 3-Axis Magnetometer (I2C) (SENSORS_HMC5843_I2C) [N/m/y/?] n
+  Honeywell HMC5983 3-Axis Magnetometer (SPI) (SENSORS_HMC5843_SPI) [N/m/y/?] n
+  *
+  * Active energy metering IC
+  *
+  Analog Devices ADE7753/6 Single-Phase Multifunction Metering IC Driver (ADE7753) [N/m/y/?] n
+  Analog Devices ADE7754 Polyphase Multifunction Energy Metering IC Driver (ADE7754) [N/m/y/?] n
+  Analog Devices ADE7758 Poly Phase Multifunction Energy Metering IC Driver (ADE7758) [N/m/y/?] n
+  Analog Devices ADE7759 Active Energy Metering IC Driver (ADE7759) [N/m/y/?] n
+  Analog Devices ADE7854/58/68/78 Polyphase Multifunction Energy Metering IC Driver (ADE7854) [N/m/y/?] n
+  *
+  * Resolver to digital converters
+  *
+  Analog Devices ad2s90 driver (AD2S90) [N/m/y/?] n
+  Analog Devices ad2s1200/ad2s1205 driver (AD2S1200) [N/m/y/?] n
+  Analog Devices ad2s1210 driver (AD2S1210) [N/m/y/?] n
+  *
+  * Triggers - standalone
+  *
+  An example driver with no hardware requirements (IIO_SIMPLE_DUMMY) [N/m/y/?] n
+  Silicon Motion SM750 framebuffer support (FB_SM750) [N/m/y/?] n
+  XGI display support (FB_XGI) [N/m/y/?] n
+  *
+  * Speakup console speech
+  *
+  Synaptics i2c rmi4 touchscreen (TOUCHSCREEN_SYNAPTICS_I2C_RMI4) [N/m/y/?] n
+  *
+  * Media staging drivers
+  *
+  Media staging drivers (STAGING_MEDIA) [N/y/?] n
+  *
+  * Android
+  *
+  Enable the Anonymous Shared Memory Subsystem (ASHMEM) [Y/n/?] y
+  Timed output class driver (ANDROID_TIMED_OUTPUT) [Y/n] y
+    Android timed gpio driver (ANDROID_TIMED_GPIO) [Y/n/m/?] y
+  Android Low Memory Killer (ANDROID_LOW_MEMORY_KILLER) [Y/n/?] y
+    Android Low Memory Killer: detect oom_adj values (ANDROID_LOW_MEMORY_KILLER_AUTODETECT_OOM_ADJ_VALUES) [Y/n/?] y
+  Synchronization framework (SYNC) [Y/?] y
+    Software synchronization objects (SW_SYNC) [Y/?] y
+      Userspace API for SW_SYNC (SW_SYNC_USER) [N/y/?] n
+    One shot sync objects (ONESHOT_SYNC) [Y/?] y
+    Userspace API for ONESHOT_SYNC (ONESHOT_SYNC_USER) [N/y/?] n
+  Android Virtual SoC support (ANDROID_VSOC) [N/m/y/?] n
+  *
+  * Ion Memory Manager
+  *
+  Ion Memory Manager (ION) [Y/n/?] y
+    Ion Test Device (ION_TEST) [N/m/y/?] n
+    Dummy Ion driver (ION_DUMMY) [N/y/?] n
+    Ion for MSM (ION_MSM) [Y/n/m/?] y
+    Turns off allocation optimization and allocate only 4K pages (ALLOC_BUFFERS_IN_4K_CHUNKS) [N/y/?] n
+  Staging Board Support (STAGING_BOARD) [N/y/?] n
+  *
+  * GCT GDM72xx WiMAX support
+  *
+  GCT GDM72xx WiMAX support (WIMAX_GDM72XX) [N/m/y/?] n
+  GCT GDM724x LTE support (LTE_GDM724X) [N/m/?] n
+  Lustre file system client support (LUSTRE_FS) [N/m/?] n
+  Digi Neo and Classic PCI Products (DGNC) [N/m/y/?] n
+  Digi EPCA PCI products (DGAP) [N/m/y/?] n
+  Xilinx FPGA firmware download module (GS_FPGABOOT) [N/m/y/?] n
+  Xilinx Clocking Wizard (COMMON_CLK_XLNX_CLKWZRD) [N/m/y/?] n
+  *
+  * Support for small TFT LCD display modules
+  *
+  Support for small TFT LCD display modules (FB_TFT) [N/m/y] n
+  Freescale Management Complex (MC) bus driver (FSL_MC_BUS) [N/m/y/?] n
+  WILC1000 support (WiFi only) (WILC1000_DRIVER) [N/y/?] n
+  *
+  * MOST driver
+  *
+  MOST driver (MOST) [N/m/y/?] n
+  *
+  * Qualcomm Atheros CLD WLAN module
+  *
+  Qualcomm Atheros CLD WLAN module (QCA_CLD_WLAN) [Y/n/m/?] y
+    Enable the WLAN Legacy Fast Roaming feature Version 3 (QCACLD_WLAN_LFR3) [N/y] (NEW) 
+    Enable the Prima WLAN Opportunistic Key Caching feature (PRIMA_WLAN_OKC) [N/y] (NEW) 
+    Enable the Prima WLAN 802.11ac High Throughput option (depends upon kernel support) (PRIMA_WLAN_11AC_HIGH_TP) [N/y] (NEW) 
+    Enable the WLAN 802.11w Protected Management Frames feature (WLAN_FEATURE_11W) [N/y] (NEW) 
+    Enable the WLAN LPSS feature (WLAN_FEATURE_LPSS) [N/y] (NEW) 
+    Enable Fast Transition (11r) feature (QCOM_VOWIFI_11R) [N/y] (NEW) 
+    Enable NAN feature (QCACLD_FEATURE_NAN) [N/y] (NEW) 
+    Enable Green AP feature (QCACLD_FEATURE_GREEN_AP) [N/y] (NEW) 
+    Enable Beeliner based descriptor structures for Helium (HELIUMPLUS) [N/y] (NEW) 
+    Enable TDLS feature (QCOM_TDLS) [N/y] (NEW) 
+    Enable QCOM LTE Coex feature (QCOM_LTE_COEX) [N/y] (NEW) 
+    Enable Unit test framework for multiport concurrency (MPC_UT_FRAMEWORK) [N/y] (NEW) 
+    Enable offload packets feature (WLAN_OFFLOAD_PACKETS) [N/y] (NEW) 
+    Enable fastpath for datapackets (WLAN_FASTPATH) [N/y] (NEW) 
+    Enable NAPI - datapath rx (WLAN_NAPI) [N/y] (NEW) 
+    Enable tx flow control version:2 (WLAN_TX_FLOW_CONTROL_V2) [N/y] (NEW) 
+    Enable QCOM sync multi devices tsf feature (WLAN_SYNC_TSF) [N/y] (NEW) 
+    Enable LFR Subnet Change Detection (LFR_SUBNET_DETECTION) [N/y] (NEW) 
+    Enable MCC to SCC Switch Logic (MCC_TO_SCC_SWITCH) [N/y] (NEW) 
+    Enable the WLAN Legacy Fast Roaming feature Version 2 (QCACLD_WLAN_LFR2) [N/y] (NEW) 
+    Enable DISA certification feature (WLAN_FEATURE_DISA) [N/y] (NEW) 
+    Enable Spectral Scan feature (WLAN_SPECTRAL_SCAN) [N/y] (NEW) 
+    Enable ICMP packet disable powersave feature (ICMP_DISABLE_PS) [N/y] (NEW) 
+    Embed timestamp in wlan version (CONFIG_BUILD_TIMESTAMP) [N/y] (NEW) 
+    Enable conversion of SAR v1 to v2 feature (WLAN_FEATURE_SARV1_TO_SARV2) [N/y] (NEW) 
+*
+* DOS/FAT/NT Filesystems
+*
+MSDOS fs support (MSDOS_FS) [Y/n/m/?] y
+VFAT (Windows-95) fs support (VFAT_FS) [Y/n/m/?] y
+  Default codepage for FAT (FAT_DEFAULT_CODEPAGE) [437] 437
+  Default iocharset for FAT (FAT_DEFAULT_IOCHARSET) [iso8859-1] iso8859-1
+sdFAT filesystem support (SDFAT_FS) [N/m/y/?] n
+NTFS file system support (NTFS_FS) [Y/n/m/?] y
+  NTFS debugging support (NTFS_DEBUG) [N/y/?] (NEW) 
+  NTFS write support (NTFS_RW) [N/y/?] (NEW) 
+exFAT fs support (EXFAT_FS) [Y/n/m/?] y
+  enable discard support (EXFAT_DISCARD) [Y/n] (NEW) 
+  enable delayed sync (EXFAT_DELAYED_SYNC) [N/y] (NEW) 
+  enable kernel debug features via ioctl (EXFAT_KERNEL_DEBUG) [N/y] (NEW) 
+  print debug messages (EXFAT_DEBUG_MSG) [N/y] (NEW) 
+  Default codepage for exFAT (EXFAT_DEFAULT_CODEPAGE) [437] (NEW) 
+  Default iocharset for exFAT (EXFAT_DEFAULT_IOCHARSET) [utf8] (NEW) 
+#
+# configuration written to .config
+#
+yes: standard output: Broken pipe
+  GEN     ./Makefile
+Using .config as base
+Merging /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config
+Value of CONFIG_SND_SOC_TAS2557 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_SND_SOC_TAS2557 is not set
+New value: CONFIG_SND_SOC_TAS2557=y
+
+Value of CONFIG_BOOST_NT50356 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_BOOST_NT50356 is not set
+New value: CONFIG_BOOST_NT50356=y
+
+Value of CONFIG_CHARGER_BQ25600_SLAVE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_CHARGER_BQ25600_SLAVE is not set
+New value: CONFIG_CHARGER_BQ25600_SLAVE=y
+
+Value of CONFIG_FINGERPRINT_GF5288 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_FINGERPRINT_GF5288 is not set
+New value: CONFIG_FINGERPRINT_GF5288=y
+
+Value of CONFIG_HAPTICS_DRV2605 is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_HAPTICS_DRV2605 is not set
+New value: CONFIG_HAPTICS_DRV2605=y
+
+Value of CONFIG_FIH_ONYX is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_FIH_ONYX is not set
+New value: CONFIG_FIH_ONYX=y
+
+Value of CONFIG_FIH_SDM630_SDM660_PROJS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_FIH_SDM630_SDM660_PROJS is not set
+New value: CONFIG_FIH_SDM630_SDM660_PROJS=y
+
+Value of CONFIG_TOUCHSCREEN_FTS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_TOUCHSCREEN_FTS is not set
+New value: CONFIG_TOUCHSCREEN_FTS=y
+
+Value of CONFIG_TOUCHSCREEN_NT36xxx is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/vendor/nokia/B2N.config:
+Previous value: # CONFIG_TOUCHSCREEN_NT36xxx is not set
+New value: CONFIG_TOUCHSCREEN_NT36xxx=y
+
+#
+# merged configuration written to .config (needs make)
+#
+  GEN     ./Makefile
+scripts/kconfig/conf  --oldconfig Kconfig
+*
+* Restart config...
+*
+*
+* Touchscreens
+*
+Touchscreens (INPUT_TOUCHSCREEN) [Y/n/?] y
+  *
+  * Synaptics DSX touchscreen
+  *
+  Synaptics DSX touchscreen (TOUCHSCREEN_SYNAPTICS_DSX_v21) [Y/n/?] y
+    Synaptics DSX touchscreen bus interface
+    > 1. I2C (TOUCHSCREEN_SYNAPTICS_DSX_I2C_v21)
+      2. SPI (TOUCHSCREEN_SYNAPTICS_DSX_SPI_v21)
+    choice[1-2]: 1
+    Synaptics DSX core driver module (TOUCHSCREEN_SYNAPTICS_DSX_CORE_v21) [Y/n/m/?] y
+      Synaptics DSX touchscreen firmware update module (TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_v21) [Y/n/m/?] y
+  ADS7846/TSC2046/AD7873 and AD(S)7843 based touchscreens (TOUCHSCREEN_ADS7846) [N/m/y/?] n
+  AD7877 based touchscreens (TOUCHSCREEN_AD7877) [N/m/y/?] n
+  Analog Devices AD7879-1/AD7889-1 touchscreen interface (TOUCHSCREEN_AD7879) [N/m/y/?] n
+  Microchip AR1021 i2c touchscreen (TOUCHSCREEN_AR1021_I2C) [N/m/y/?] n
+  Atmel mXT I2C Touchscreen (TOUCHSCREEN_ATMEL_MXT) [N/m/y/?] n
+  Atmel Maxtouch Touchscreen Family (TOUCHSCREEN_ATMEL_MAXTOUCH_TS) [N/m/y/?] n
+  AUO in-cell touchscreen using Pixcir ICs (TOUCHSCREEN_AUO_PIXCIR) [N/m/y/?] n
+  BU21013 based touch panel controllers (TOUCHSCREEN_BU21013) [N/m/y/?] n
+  chipone icn8318 touchscreen controller (TOUCHSCREEN_CHIPONE_ICN8318) [N/m/y/?] n
+  cy8ctmg110 touchscreen (TOUCHSCREEN_CY8CTMG110) [N/m/y/?] n
+  Cypress TTSP touchscreen (TOUCHSCREEN_CYTTSP_CORE) [N/m/y/?] n
+  Cypress TrueTouch Gen4 Touchscreen Driver (TOUCHSCREEN_CYTTSP4_CORE) [N/m/y/?] n
+  Dynapro serial touchscreen (TOUCHSCREEN_DYNAPRO) [N/m/y/?] n
+  Hampshire serial touchscreen (TOUCHSCREEN_HAMPSHIRE) [N/m/y/?] n
+  EETI touchscreen panel support (TOUCHSCREEN_EETI) [N/m/y/?] n
+  EETI eGalax multi-touch panel support (TOUCHSCREEN_EGALAX) [N/m/y/?] n
+  FT6236 I2C touchscreen (TOUCHSCREEN_FT6236) [N/m/y/?] n
+  Fujitsu serial touchscreen (TOUCHSCREEN_FUJITSU) [N/m/y/?] n
+  Goodix I2C touchscreen (TOUCHSCREEN_GOODIX) [N/m/y/?] n
+  Gunze AHL-51S touchscreen (TOUCHSCREEN_GUNZE) [N/m/y/?] n
+  Elan eKTH I2C touchscreen (TOUCHSCREEN_ELAN) [N/m/y/?] n
+  Elo serial touchscreens (TOUCHSCREEN_ELO) [N/m/y/?] n
+  Wacom W8001 penabled serial touchscreen (TOUCHSCREEN_WACOM_W8001) [N/m/y/?] n
+  Wacom Tablet support (I2C) (TOUCHSCREEN_WACOM_I2C) [N/m/y/?] n
+  MAX11801 based touchscreens (TOUCHSCREEN_MAX11801) [N/m/y/?] n
+  MELFAS MCS-5000 touchscreen (TOUCHSCREEN_MCS5000) [N/m/y/?] n
+  MELFAS MMS114 touchscreen (TOUCHSCREEN_MMS114) [N/m/y/?] n
+  MicroTouch serial touchscreens (TOUCHSCREEN_MTOUCH) [N/m/y/?] n
+  Freescale i.MX6UL touchscreen controller (TOUCHSCREEN_IMX6UL_TSC) [N/m/y/?] n
+  iNexio serial touchscreens (TOUCHSCREEN_INEXIO) [N/m/y/?] n
+  ICS MicroClock MK712 touchscreen (TOUCHSCREEN_MK712) [N/m/y/?] n
+  Penmount serial touchscreen (TOUCHSCREEN_PENMOUNT) [N/m/y/?] n
+  EDT FocalTech FT5x06 I2C Touchscreen support (TOUCHSCREEN_EDT_FT5X06) [N/m/y/?] n
+  Touchright serial touchscreen (TOUCHSCREEN_TOUCHRIGHT) [N/m/y/?] n
+  Touchwin serial touchscreen (TOUCHSCREEN_TOUCHWIN) [N/m/y/?] n
+  PIXCIR I2C touchscreens (TOUCHSCREEN_PIXCIR) [N/m/y/?] n
+  Weida HiTech I2C touchscreen (TOUCHSCREEN_WDT87XX_I2C) [N/m/y/?] n
+  USB Touchscreen Driver (TOUCHSCREEN_USB_COMPOSITE) [N/m/y/?] n
+  Sahara TouchIT-213 touchscreen (TOUCHSCREEN_TOUCHIT213) [N/m/y/?] n
+  TSC-10/25/40 serial touchscreen support (TOUCHSCREEN_TSC_SERIO) [N/m/y/?] n
+  TSC2004 based touchscreens (TOUCHSCREEN_TSC2004) [N/m/y/?] n
+  TSC2005 based touchscreens (TOUCHSCREEN_TSC2005) [N/m/y/?] n
+  TSC2007 based touchscreens (TOUCHSCREEN_TSC2007) [N/m/y/?] n
+  Sitronix ST1232 touchscreen controllers (TOUCHSCREEN_ST1232) [N/m/y/?] n
+  Samsung SUR40 (Surface 2.0/PixelSense) touchscreen (TOUCHSCREEN_SUR40) [N/m/y/?] n
+  Semtech SX8654 touchscreen (TOUCHSCREEN_SX8654) [N/m/y/?] n
+  TPS6507x based touchscreens (TOUCHSCREEN_TPS6507X) [N/m/y/?] n
+  Neonode zForce infrared touchscreens (TOUCHSCREEN_ZFORCE) [N/m/y/?] n
+  ROHM BU21023/24 Dual touch support resistive touchscreens (TOUCHSCREEN_ROHM_BU21023) [N/m/y/?] n
+  Maxim based STI touchscreens (TOUCHSCREEN_MAXIM_STI) [N/m/y/?] n
+  Secure Touch (SECURE_TOUCH) [Y/n/?] y
+  Touchscreen Virtual Keys Driver (TOUCHSCREEN_GEN_VKEYS) [N/m/y/?] n
+  FocalTech touchscreens (TOUCHSCREEN_FT5X06) [N/m/y/?] n
+  IT7260 Touchscreen Driver (TOUCHSCREEN_IT7260_I2C) [N/m/y/?] n
+  STMicroelectronics Touchscreen Driver (TOUCHSCREEN_ST) [N/y/?] n
+  Longcheer Touchscreen Info driver (LC_TOUCHSCREEN_INFO) [N/y/?] n
+  Focaltech Touchscreen (TOUCHSCREEN_FTS) [Y/n/?] y
+    Focaltech ts directory name (TOUCHSCREEN_FTS_DIRECTORY) [focaltech_touch] (NEW) 
+  Focaltech Touchscreen for Longcheer devices (TOUCHSCREEN_FTS_LC) [N/y/?] n
+  Focaltech ts directory name (TOUCHSCREEN_FTS_DIRECTORY) [focaltech_touch] focaltech_touch
+  Focaltech 8719 Touchscreen (TOUCHSCREEN_FT8719) [N/y/?] n
+  Goodix Touchscreen (TOUCHSCREEN_GX) [N/y/?] n
+  Goodix touchpanel GT9xx series (TOUCHSCREEN_GT9XX) [N/y/?] n
+  HIMAX chipset spi touchscreen (TOUCHSCREEN_HIMAX) [N/m/y/?] n
+  ILITEK I2C touchscreen driver for linux platform (TOUCHSCREEN_ILI210X) [N/m/y/?] n
+  Novatek NT36xxx (TOUCHSCREEN_NT36xxx) [Y/n/?] y
+#
+# configuration written to .config
+#
+yes: standard output: Broken pipe
+  GEN     ./Makefile
+Using .config as base
+Merging /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config
+Value of CONFIG_DEVTMPFS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_DEVTMPFS is not set
+New value: CONFIG_DEVTMPFS=y
+
+Value of CONFIG_FHANDLE is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_FHANDLE is not set
+New value: CONFIG_FHANDLE=y
+
+Value of CONFIG_SYSVIPC is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_SYSVIPC is not set
+New value: CONFIG_SYSVIPC=y
+
+Value of CONFIG_PID_NS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_PID_NS is not set
+New value: CONFIG_PID_NS=y
+
+Value of CONFIG_USER_NS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_USER_NS is not set
+New value: CONFIG_USER_NS=y
+
+Value of CONFIG_UTS_NS is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_UTS_NS is not set
+New value: CONFIG_UTS_NS=y
+
+Value of CONFIG_VT is redefined by fragment /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/configs/halium.config:
+Previous value: # CONFIG_VT is not set
+New value: CONFIG_VT=y
+
+#
+# merged configuration written to .config (needs make)
+#
+  GEN     ./Makefile
+scripts/kconfig/conf  --oldconfig Kconfig
+*
+* Restart config...
+*
+*
+* Generic Driver Options
+*
+Support for uevent helper (UEVENT_HELPER) [Y/n/?] y
+  path to uevent helper (UEVENT_HELPER_PATH) [] 
+Maintain a devtmpfs filesystem to mount at /dev (DEVTMPFS) [Y/n/?] y
+  Automount devtmpfs at /dev, after the kernel mounted the rootfs (DEVTMPFS_MOUNT) [N/y/?] (NEW) 
+Select only drivers that don't need compile-time external firmware (STANDALONE) [Y/n/?] y
+Prevent firmware from being built (PREVENT_FIRMWARE_BUILD) [Y/n/?] y
+Userspace firmware loading support (FW_LOADER) [Y/?] y
+  Include in-kernel firmware blobs in kernel binary (FIRMWARE_IN_KERNEL) [Y/n/?] y
+  External firmware blobs to build into the kernel binary (EXTRA_FIRMWARE) [] 
+Fallback user-helper invocation for firmware loading (FW_LOADER_USER_HELPER_FALLBACK) [Y/n/?] y
+Enable firmware caching during suspend (FW_CACHE) [N/y] n
+Allow device coredump (ALLOW_DEV_COREDUMP) [Y/n/?] y
+Driver Core verbose debug messages (DEBUG_DRIVER) [N/y/?] n
+Managed device resources verbose debug messages (DEBUG_DEVRES) [N/y/?] n
+Allow REGMAP debugfs write (REGMAP_ALLOW_WRITE_DEBUGFS) [N/y/?] n
+Enable verbose FENCE_TRACE messages (FENCE_TRACE) [N/y/?] n
+DMA Contiguous Memory Allocator (DMA_CMA) [Y/n/?] y
+  *
+  * Default contiguous memory area size:
+  *
+  Size in Mega Bytes (CMA_SIZE_MBYTES) [16] 16
+  Selected region size
+  > 1. Use mega bytes value only (CMA_SIZE_SEL_MBYTES)
+    2. Use percentage value only (CMA_SIZE_SEL_PERCENTAGE)
+    3. Use lower value (minimum) (CMA_SIZE_SEL_MIN)
+    4. Use higher value (maximum) (CMA_SIZE_SEL_MAX)
+  choice[1-4]: 1
+  Maximum PAGE_SIZE order of alignment for contiguous buffers (CMA_ALIGNMENT) [8] 8
+*
+* Character devices
+*
+Enable TTY (TTY) [Y/n/?] y
+  Virtual terminal (VT) [Y/n/?] y
+    Enable character translations in console (CONSOLE_TRANSLATIONS) [Y/n/?] (NEW) 
+    Support for console on virtual terminal (VT_CONSOLE) [Y/n/?] (NEW) 
+    Support for binding and unbinding console drivers (VT_HW_CONSOLE_BINDING) [N/y/?] (NEW) 
+  Unix98 PTY support (UNIX98_PTYS) [Y/n/?] y
+    Support multiple instances of devpts (DEVPTS_MULTIPLE_INSTANCES) [N/y/?] n
+  Legacy (BSD) PTY support (LEGACY_PTYS) [N/y/?] n
+  Non-standard serial port support (SERIAL_NONSTANDARD) [N/y/?] n
+  HSDPA Broadband Wireless Data Card - Globe Trotter (NOZOMI) [N/m/y/?] n
+  GSM MUX line discipline support (EXPERIMENTAL) (N_GSM) [N/m/y/?] n
+  Trace data sink for MIPI P1149.7 cJTAG standard (TRACE_SINK) [N/m/y/?] n
+  Automatically load TTY Line Disciplines (LDISC_AUTOLOAD) [Y/n/?] y
+/dev/mem virtual device support (DEVMEM) [N/y/?] n
+/dev/kmem virtual device support (DEVKMEM) [N/y/?] n
+*
+* Serial drivers
+*
+8250/16550 and compatible serial support (SERIAL_8250) [N/m/y/?] n
+*
+* Non-8250 serial port support
+*
+ARM AMBA PL010 serial port support (SERIAL_AMBA_PL010) [N/m/y/?] n
+ARM AMBA PL011 serial port support (SERIAL_AMBA_PL011) [N/m/y/?] n
+Early console using ARM semihosting (SERIAL_EARLYCON_ARM_SEMIHOST) [N/y/?] n
+MAX3100 support (SERIAL_MAX3100) [N/m/y/?] n
+MAX310X support (SERIAL_MAX310X) [N/m/y/?] n
+Xilinx uartlite serial port support (SERIAL_UARTLITE) [N/m/y/?] n
+Digi International NEO and Classic PCI Support (SERIAL_JSM) [N/m/y/?] n
+MSM on-chip serial port support (SERIAL_MSM) [N/y] n
+MSM UART High Speed: Serial Driver (SERIAL_MSM_HS) [Y/n/m/?] y
+SCCNXP serial port support (SERIAL_SCCNXP) [N/m/y/?] n
+SC16IS7xx serial support (SERIAL_SC16IS7XX) [N/m/y/?] n
+Altera JTAG UART support (SERIAL_ALTERA_JTAGUART) [N/m/y/?] n
+Altera UART support (SERIAL_ALTERA_UART) [N/m/y/?] n
+SPI protocol driver for Infineon 6x60 modem (EXPERIMENTAL) (SERIAL_IFX6X60) [N/m/y/?] n
+Enable tty device interface for some SMD ports (SERIAL_MSM_SMD) [Y/n/?] y
+Cadence (Xilinx Zynq) UART support (SERIAL_XILINX_PS_UART) [N/m/y/?] n
+ARC UART driver support (SERIAL_ARC) [N/m/y/?] n
+Comtrol RocketPort EXPRESS/INFINITY support (SERIAL_RP2) [N/m/y/?] n
+Freescale lpuart serial port support (SERIAL_FSL_LPUART) [N/m/y/?] n
+Conexant Digicolor CX92xxx USART serial port support (SERIAL_CONEXANT_DIGICOLOR) [N/m/y/?] n
+*
+* Diag Support
+*
+char driver interface and diag forwarding to/from modem (DIAG_CHAR) [Y/n/m/?] y
+*
+* DIAG traffic over USB
+*
+Enable DIAG traffic to go over USB (DIAG_OVER_USB) [Y/n/?] y
+*
+* HSIC/SMUX support for DIAG
+*
+TTY driver to output user messages via printk (TTY_PRINTK) [N/m/y/?] n
+ARM JTAG DCC console (HVC_DCC) [N/y/?] n
+*
+* IPMI top-level message handler
+*
+IPMI top-level message handler (IPMI_HANDLER) [N/m/y/?] n
+*
+* Hardware Random Number Generator Core support
+*
+Hardware Random Number Generator Core support (HW_RANDOM) [Y/n/m/?] y
+  Timer IOMEM HW Random Number Generator support (HW_RANDOM_TIMERIOMEM) [N/m/y/?] n
+  Qualcomm MSM Random Number Generator support (LEGACY) (HW_RANDOM_MSM_LEGACY) [Y/n/m/?] y
+  Qualcomm SoCs Random Number Generator support (HW_RANDOM_MSM) [N/m/y/?] n
+Applicom intelligent fieldbus card support (APPLICOM) [N/m/y/?] n
+*
+* PCMCIA character devices
+*
+RAW driver (/dev/raw/rawN) (RAW_DRIVER) [N/m/y/?] n
+*
+* TPM Hardware Support
+*
+TPM Hardware Support (TCG_TPM) [N/m/y/?] n
+/dev/port character device (DEVPORT) [N/y/?] n
+Enable device interface for some SMD packet ports (MSM_SMD_PKT) [N/y/?] n
+Xillybus generic FPGA interface (XILLYBUS) [N/m/y/?] n
+QTI ADSP RPC driver (MSM_ADSPRPC) [Y/n/m/?] y
+QTI Remote debug driver (MSM_RDBG) [N/m/y/?] n
+*
+* Console display driver support
+*
+Initial number of console screen columns (DUMMY_CONSOLE_COLUMNS) [80] (NEW) 
+Initial number of console screen rows (DUMMY_CONSOLE_ROWS) [25] (NEW) 
+Framebuffer Console support (FRAMEBUFFER_CONSOLE) [N/m/y/?] (NEW) 
+*
+* Speakup console speech
+*
+Speakup core (SPEAKUP) [N/m/y/?] (NEW) 
+#
+# configuration written to .config
+#
+yes: standard output: Broken pipe
+make[1]: Leaving directory '/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ'
++ false
+++ nproc --all
++ make O=/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ CC=clang -j2
+make[1]: Entering directory '/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ'
+  GEN     ./Makefile
+scripts/kconfig/conf  --silentoldconfig Kconfig
+arch/arm64/Makefile:28: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/Makefile:739: Cannot use CONFIG_CC_STACKPROTECTOR_STRONG: -fstack-protector-strong not supported by compiler
+  CHK     include/config/kernel.release
+  GEN     ./Makefile
+  UPD     include/config/kernel.release
+  WRAP    arch/arm64/include/generated/asm/bug.h
+  WRAP    arch/arm64/include/generated/asm/bugs.h
+  WRAP    arch/arm64/include/generated/asm/clkdev.h
+  WRAP    arch/arm64/include/generated/asm/cputime.h
+  WRAP    arch/arm64/include/generated/asm/current.h
+  WRAP    arch/arm64/include/generated/asm/delay.h
+  WRAP    arch/arm64/include/generated/asm/div64.h
+  WRAP    arch/arm64/include/generated/asm/dma.h
+  CHK     include/generated/uapi/linux/version.h
+  WRAP    arch/arm64/include/generated/asm/dma-contiguous.h
+  WRAP    arch/arm64/include/generated/asm/early_ioremap.h
+  UPD     include/generated/uapi/linux/version.h
+  WRAP    arch/arm64/include/generated/asm/emergency-restart.h
+  WRAP    arch/arm64/include/generated/asm/errno.h
+  WRAP    arch/arm64/include/generated/asm/ftrace.h
+  WRAP    arch/arm64/include/generated/asm/hash.h
+  WRAP    arch/arm64/include/generated/asm/hw_irq.h
+  WRAP    arch/arm64/include/generated/asm/ioctl.h
+  WRAP    arch/arm64/include/generated/asm/ioctls.h
+  CHK     include/generated/utsrelease.h
+  WRAP    arch/arm64/include/generated/asm/ipcbuf.h
+  WRAP    arch/arm64/include/generated/asm/irq_regs.h
+  WRAP    arch/arm64/include/generated/asm/kdebug.h
+  WRAP    arch/arm64/include/generated/asm/kmap_types.h
+  WRAP    arch/arm64/include/generated/asm/kvm_para.h
+  UPD     include/generated/utsrelease.h
+  WRAP    arch/arm64/include/generated/asm/local.h
+  WRAP    arch/arm64/include/generated/asm/local64.h
+  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
+  WRAP    arch/arm64/include/generated/asm/mm-arch-hooks.h
+  WRAP    arch/arm64/include/generated/asm/mman.h
+  WRAP    arch/arm64/include/generated/asm/msgbuf.h
+  WRAP    arch/arm64/include/generated/asm/msi.h
+  WRAP    arch/arm64/include/generated/asm/mutex.h
+  WRAP    arch/arm64/include/generated/asm/pci.h
+  WRAP    arch/arm64/include/generated/asm/pci-bridge.h
+  WRAP    arch/arm64/include/generated/asm/poll.h
+  WRAP    arch/arm64/include/generated/asm/preempt.h
+  WRAP    arch/arm64/include/generated/asm/resource.h
+  HOSTCC  scripts/basic/fixdep
+  WRAP    arch/arm64/include/generated/asm/rwsem.h
+  WRAP    arch/arm64/include/generated/asm/segment.h
+  WRAP    arch/arm64/include/generated/asm/sembuf.h
+  WRAP    arch/arm64/include/generated/asm/serial.h
+  WRAP    arch/arm64/include/generated/asm/shmbuf.h
+  WRAP    arch/arm64/include/generated/asm/simd.h
+  WRAP    arch/arm64/include/generated/asm/sizes.h
+  WRAP    arch/arm64/include/generated/asm/socket.h
+  WRAP    arch/arm64/include/generated/asm/sockios.h
+  WRAP    arch/arm64/include/generated/asm/swab.h
+  WRAP    arch/arm64/include/generated/asm/switch_to.h
+  WRAP    arch/arm64/include/generated/asm/termbits.h
+  WRAP    arch/arm64/include/generated/asm/termios.h
+  WRAP    arch/arm64/include/generated/asm/topology.h
+  WRAP    arch/arm64/include/generated/asm/trace_clock.h
+  WRAP    arch/arm64/include/generated/asm/types.h
+  WRAP    arch/arm64/include/generated/asm/unaligned.h
+  WRAP    arch/arm64/include/generated/asm/user.h
+  WRAP    arch/arm64/include/generated/asm/vga.h
+  WRAP    arch/arm64/include/generated/asm/xor.h
+  WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
+  HOSTCC  scripts/basic/bin2c
+  Using /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n as source for kernel
+  HOSTCC  scripts/dtc/dtc.o
+  HOSTCC  scripts/dtc/flattree.o
+  HOSTCC  scripts/dtc/fstree.o
+  HOSTCC  scripts/dtc/data.o
+  HOSTCC  scripts/dtc/livetree.o
+  HOSTCC  scripts/dtc/treesource.o
+  HOSTCC  scripts/dtc/srcpos.o
+  HOSTCC  scripts/dtc/checks.o
+  HOSTCC  scripts/dtc/util.o
+  HOSTCC  scripts/genksyms/genksyms.o
+  SHIPPED scripts/dtc/dtc-lexer.lex.c
+  SHIPPED scripts/dtc/dtc-parser.tab.h
+  SHIPPED scripts/dtc/dtc-parser.tab.c
+  HOSTCC  scripts/dtc/dtc-lexer.lex.o
+  SHIPPED scripts/genksyms/parse.tab.c
+  SHIPPED scripts/genksyms/lex.lex.c
+  SHIPPED scripts/genksyms/keywords.hash.c
+  SHIPPED scripts/genksyms/parse.tab.h
+  HOSTCC  scripts/genksyms/parse.tab.o
+  HOSTCC  scripts/dtc/dtc-parser.tab.o
+  HOSTCC  scripts/genksyms/lex.lex.o
+  HOSTLD  scripts/dtc/dtc
+  CC      scripts/mod/empty.o
+/..//bin/as: unrecognized option '-EL'
+clang-9: error: assembler command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/scripts/Makefile.build:293: scripts/mod/empty.o] Error 1
+make[2]: *** [/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/scripts/Makefile.build:527: scripts/mod] Error 2
+make[2]: *** Waiting for unfinished jobs....
+  CC      kernel/bounds.s
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/kernel/bounds.c:9:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/page-flags.h:9:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/bug.h:4:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/bug.h:67:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/asm-generic/bug.h:13:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/kernel.h:13:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/printk.h:8:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/cache.h:5:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cache.h:19:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cachetype.h:19:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cputype.h:118:
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:261:43: warning: value size does not match register size specified by the constraint and modifier [-Wasm-operand-widths]
+        asm volatile("mrs %0, sctlr_el1" : "=r" (val));
+                                                 ^
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:261:20: note: use constraint modifier "w"
+        asm volatile("mrs %0, sctlr_el1" : "=r" (val));
+                          ^~
+                          %w0
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:264:44: warning: value size does not match register size specified by the constraint and modifier [-Wasm-operand-widths]
+        asm volatile("msr sctlr_el1, %0" : : "r" (val));
+                                                  ^
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:264:31: note: use constraint modifier "w"
+        asm volatile("msr sctlr_el1, %0" : : "r" (val));
+                                     ^~
+                                     %w0
+2 warnings generated.
+  CHK     include/generated/timeconst.h
+  UPD     include/generated/timeconst.h
+  CHK     include/generated/bounds.h
+  UPD     include/generated/bounds.h
+  CC      arch/arm64/kernel/asm-offsets.s
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/kernel/asm-offsets.c:21:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/sched.h:17:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/kernel.h:13:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/printk.h:8:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/cache.h:5:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cache.h:19:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cachetype.h:19:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/cputype.h:118:
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:261:43: warning: value size does not match register size specified by the constraint and modifier [-Wasm-operand-widths]
+        asm volatile("mrs %0, sctlr_el1" : "=r" (val));
+                                                 ^
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:261:20: note: use constraint modifier "w"
+        asm volatile("mrs %0, sctlr_el1" : "=r" (val));
+                          ^~
+                          %w0
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:264:44: warning: value size does not match register size specified by the constraint and modifier [-Wasm-operand-widths]
+        asm volatile("msr sctlr_el1, %0" : : "r" (val));
+                                                  ^
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/include/asm/sysreg.h:264:31: note: use constraint modifier "w"
+        asm volatile("msr sctlr_el1, %0" : : "r" (val));
+                                     ^~
+                                     %w0
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/arch/arm64/kernel/asm-offsets.c:21:
+In file included from /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/sched.h:62:
+/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/include/linux/cgroup-defs.h:327:16: warning: field 'cgrp' with variable sized type 'struct cgroup' not at the end of a struct or class is a GNU extension [-Wgnu-variable-sized-type-not-at-end]
+        struct cgroup cgrp;
+                      ^
+  HOSTLD  scripts/genksyms/genksyms
+make[1]: *** [/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/Makefile:574: scripts] Error 2
+make[1]: *** Waiting for unfinished jobs....
+3 warnings generated.
+  CHK     include/generated/asm-offsets.h
+  UPD     include/generated/asm-offsets.h
+  CALL    /home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/nokia-b2n/scripts/checksyscalls.sh
+make[1]: Leaving directory '/home/runner/work/nokia-b2n/nokia-b2n/workdir/downloads/KERNEL_OBJ'
+make: *** [Makefile:152: sub-make] Error 2
