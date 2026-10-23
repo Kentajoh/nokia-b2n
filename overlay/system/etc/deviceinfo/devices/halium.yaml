@@ -1,0 +1,14 @@
+B2N:
+  Names:
+    - B2N
+    - B2N_sprout
+    - Nokia 7 plus
+  PrettyName: Nokia 7 plus
+  DeviceType: phone
+  GridUnit: 18
+  SupportedOrientations:
+    - Portrait
+    - Landscape
+    - InvertedLandscape
+  OfonoPlugin: binder
+  OfonoImplementsIms: true

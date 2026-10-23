@@ -1,0 +1,8 @@
+backup/stock-*/
+backup/tools/*.img
+build/
+out/
+tmp/
+workdir/
+*.img
+.DS_Store
