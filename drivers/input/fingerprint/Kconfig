@@ -1,0 +1,20 @@
+#
+# Fingerprint driver configuration
+#
+
+menuconfig INPUT_FINGERPRINT
+	bool "Fingerprints"
+	help
+	  Say Y here, and a list of supported fingerprints will be displayed.
+	  This option doesn't affect the kernel.
+	  If unsure, say Y.
+
+if INPUT_FINGERPRINT
+
+source "drivers/input/fingerprint/cdfinger/Kconfig"
+source "drivers/input/fingerprint/elan/Kconfig"
+source "drivers/input/fingerprint/fpc1020/Kconfig"
+source "drivers/input/fingerprint/ft9362/Kconfig"
+source "drivers/input/fingerprint/goodix_gf5288/Kconfig"
+
+endif
