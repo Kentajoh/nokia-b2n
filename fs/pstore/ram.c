@@ -216,8 +216,7 @@ void __init b2n_pstore_stamp_early(void)
 	sig = readl(base);
 	size = readl(base + 8);
 	if (sig == persistent_ram_zone_sig(0) && size == 2 &&
-	    readb(base + header) == 'H' &&
-	    readb(base + header + 1) == '\n') {
+	    readb(base + header) == 'H') {
 		writeb('A', base + header + size);
 		writeb('\n', base + header + size + 1);
 		size += 2;
@@ -255,9 +254,9 @@ void __init b2n_pstore_arm_early(void)
 	sig = readl(base);
 	size = readl(base + 8);
 	if (sig == persistent_ram_zone_sig(0) &&
-	    size >= 2 && size + 2 <= b2n_early_capacity &&
-	    (readb(base + header) == 'H' || readb(base + header) == 'A') &&
-	    readb(base + header + 1) == '\n') {
+	    size >= 2 && size <= 8 &&
+	    size + 2 <= b2n_early_capacity &&
+	    (readb(base + header) == 'H' || readb(base + header) == 'A')) {
 		writeb('B', base + header + size);
 		writeb('\n', base + header + size + 1);
 		size += 2;

@@ -209,22 +209,37 @@ efi_header_end:
 
 ENTRY(stext)
 	/*
-	 * The boot protocol leaves the MMU and D-cache off. Write the ramoops
-	 * console record recovery already reads before any later call can fail.
-	 * The console is at 0xaccbe000: signature, start = 2, size = 2, "H\n".
+	 * Write the ramoops console only when the MMU is off, then clean the
+	 * cache line. The previous store never appeared in recovery: a store
+	 * with the MMU on faults before the vectors exist, and a cached store
+	 * is discarded by the warm reset. The record is "H" plus the entry EL.
 	 * x0-x3 are the boot arguments and must stay intact.
 	 */
-	mov	x4, #0xe000
-	movk	x4, #0xaccb, lsl #16
-	mov	w5, #0x4244
-	movk	w5, #0x4347, lsl #16
-	str	w5, [x4]
-	mov	w5, #2
-	str	w5, [x4, #4]
-	str	w5, [x4, #8]
-	mov	w5, #0x0a41
-	strh	w5, [x4, #12]
+	mrs	x4, CurrentEL
+	cmp	x4, #0x8
+	b.ne	b2n_sctlr_el1
+	mrs	x5, sctlr_el2
+	b	b2n_sctlr_done
+b2n_sctlr_el1:
+	mrs	x5, sctlr_el1
+b2n_sctlr_done:
+	tbnz	x5, #0, b2n_entry_continue
+	mov	x5, #0xe000
+	movk	x5, #0xaccb, lsl #16
+	mov	w6, #0x4244
+	movk	w6, #0x4347, lsl #16
+	str	w6, [x5]
+	mov	w6, #2
+	str	w6, [x5, #4]
+	str	w6, [x5, #8]
+	mov	w6, #'H'
+	strb	w6, [x5, #12]
+	lsr	w4, w4, #2
+	add	w4, w4, #'0'
+	strb	w4, [x5, #13]
+	dc	cvac, x5
 	dsb	sy
+b2n_entry_continue:
 	bl	preserve_boot_args
 	bl	el2_setup			// Drop to EL1, w20=cpu_boot_mode
 	adrp	x24, __PHYS_OFFSET
