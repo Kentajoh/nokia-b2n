@@ -95,8 +95,9 @@ MODULE_PARM_DESC(ramoops_ecc,
  * Recovery reads one fixed layout and ignores a command line that moves it:
  * 2 MiB at 0xacb00000, then 4 KiB oops records, a 256 KiB console, and 4 KiB
  * ftrace and pmsg zones. The console therefore starts 0x1be000 bytes in.
- * console_init maps it before running console initcalls. The VT console
- * initcall can panic before a later one gets to run.
+ * After mm_init the kernel writes "M" with the write-combine mapping
+ * recovery reads. console_init then attaches the full log before the
+ * VT initcall, which can panic before a later console initcall runs.
  */
 #define B2N_PSTORE_PHYS		0xacb00000UL
 #define B2N_PSTORE_TOTAL	0x00200000UL
@@ -158,6 +159,35 @@ static struct console b2n_early_console = {
 	.flags	= CON_PRINTBUFFER | CON_ENABLED,
 	.index	= -1,
 };
+
+void __init b2n_pstore_mark_memory(void)
+{
+	phys_addr_t console_phys;
+	unsigned int header;
+	void __iomem *base;
+	const char tag[] = "M\n";
+
+	header = persistent_ram_header_bytes();
+	if (header >= PAGE_SIZE || header + sizeof(tag) > PAGE_SIZE)
+		return;
+	if (header >= B2N_PSTORE_CONSOLE)
+		return;
+	if (B2N_PSTORE_RECORD + B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE +
+	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
+		return;
+
+	console_phys = B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
+		       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
+	base = ioremap_wc(console_phys, PAGE_SIZE);
+	if (!base)
+		return;
+	writeb('M', base + header);
+	writeb('\n', base + header + 1);
+	writel(2, base + 4);
+	writel(2, base + 8);
+	writel(persistent_ram_zone_sig(0), base);
+	iounmap(base);
+}
 
 void __init b2n_pstore_arm_console(void)
 {
