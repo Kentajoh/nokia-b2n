@@ -208,6 +208,23 @@ efi_header_end:
 	__INIT
 
 ENTRY(stext)
+	/*
+	 * The boot protocol leaves the MMU and D-cache off. Write the ramoops
+	 * console record recovery already reads before any later call can fail.
+	 * The console is at 0xaccbe000: signature, start = 2, size = 2, "H\n".
+	 * x0-x3 are the boot arguments and must stay intact.
+	 */
+	mov	x4, #0xe000
+	movk	x4, #0xaccb, lsl #16
+	mov	w5, #0x4244
+	movk	w5, #0x4347, lsl #16
+	str	w5, [x4]
+	mov	w5, #2
+	str	w5, [x4, #4]
+	str	w5, [x4, #8]
+	mov	w5, #0x0a41
+	strh	w5, [x4, #12]
+	dsb	sy
 	bl	preserve_boot_args
 	bl	el2_setup			// Drop to EL1, w20=cpu_boot_mode
 	adrp	x24, __PHYS_OFFSET

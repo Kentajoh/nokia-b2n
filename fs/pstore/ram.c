@@ -100,10 +100,9 @@ MODULE_PARM_DESC(ramoops_ecc,
  * Recovery reads one fixed layout and ignores a command line that moves it:
  * 2 MiB at 0xacb00000, then 4 KiB oops records, a 256 KiB console, and 4 KiB
  * ftrace and pmsg zones. The console therefore starts 0x1be000 bytes in.
- * A one-page marker is written as soon as the early remap exists. The
- * full console is attached with the same write-combine attributes
- * recovery uses, but only after mm_init: mapping the whole 256 KiB
- * after paging_init left the previous Android record untouched.
+ * The first instruction of the kernel writes "H" here with the MMU off.
+ * "A" is appended once the early remap exists, and "B" once the
+ * write-combined console is attached after mm_init.
  */
 #define B2N_PSTORE_PHYS		0xacb00000UL
 #define B2N_PSTORE_TOTAL	0x00200000UL
@@ -201,6 +200,7 @@ void __init b2n_pstore_stamp_early(void)
 	phys_addr_t console_phys;
 	unsigned int header;
 	void __iomem *base;
+	u32 sig, size;
 	const char tag[] = "A\n";
 
 	header = persistent_ram_header_bytes();
@@ -213,7 +213,19 @@ void __init b2n_pstore_stamp_early(void)
 	if (!base)
 		return;
 
-	b2n_pstore_publish(base, header, tag, sizeof(tag) - 1);
+	sig = readl(base);
+	size = readl(base + 8);
+	if (sig == persistent_ram_zone_sig(0) && size == 2 &&
+	    readb(base + header) == 'H' &&
+	    readb(base + header + 1) == '\n') {
+		writeb('A', base + header + size);
+		writeb('\n', base + header + size + 1);
+		size += 2;
+		writel(size, base + 4);
+		writel(size, base + 8);
+	} else {
+		b2n_pstore_publish(base, header, tag, sizeof(tag) - 1);
+	}
 	early_iounmap(base, PAGE_SIZE);
 }
 
@@ -242,8 +254,9 @@ void __init b2n_pstore_arm_early(void)
 
 	sig = readl(base);
 	size = readl(base + 8);
-	if (sig == persistent_ram_zone_sig(0) && size == 2 &&
-	    readb(base + header) == 'A' &&
+	if (sig == persistent_ram_zone_sig(0) &&
+	    size >= 2 && size + 2 <= b2n_early_capacity &&
+	    (readb(base + header) == 'H' || readb(base + header) == 'A') &&
 	    readb(base + header + 1) == '\n') {
 		writeb('B', base + header + size);
 		writeb('\n', base + header + size + 1);
