@@ -24,6 +24,8 @@
 
 #include <linux/kernel.h>
 #include <linux/err.h>
+#include <linux/console.h>
+#include <linux/init.h>
 #include <linux/module.h>
 #include <linux/version.h>
 #include <linux/pstore.h>
@@ -88,6 +90,107 @@ MODULE_PARM_DESC(ramoops_ecc,
 		"if non-zero, the option enables ECC support and specifies "
 		"ECC buffer size in bytes (1 is a special value, means 16 "
 		"bytes ECC)");
+
+/*
+ * Recovery reads one fixed layout and ignores a command line that moves it:
+ * 2 MiB at 0xacb00000, then 4 KiB oops records, a 256 KiB console, and 4 KiB
+ * ftrace and pmsg zones. The console therefore starts 0x1be000 bytes in.
+ * console_init maps it before any initcall, because a panic before
+ * ramoops_init leaves the previous Android record untouched.
+ */
+#define B2N_PSTORE_PHYS		0xacb00000UL
+#define B2N_PSTORE_TOTAL	0x00200000UL
+#define B2N_PSTORE_RECORD	0x00001000UL
+#define B2N_PSTORE_CONSOLE	0x00040000UL
+#define B2N_PSTORE_FTRACE	0x00001000UL
+#define B2N_PSTORE_PMSG		0x00001000UL
+
+static void __iomem *b2n_early_base;
+static unsigned int b2n_early_header;
+static unsigned int b2n_early_capacity;
+static bool b2n_pstore_early_handoff;
+
+static void notrace b2n_early_console_write(struct console *console,
+					    const char *text, unsigned int count)
+{
+	void __iomem *base = b2n_early_base;
+	unsigned int capacity = b2n_early_capacity;
+	unsigned int header = b2n_early_header;
+	u32 start, size, old, remain;
+	unsigned int length = count;
+
+	if (!base || b2n_pstore_early_handoff || !length)
+		return;
+	if (length > capacity) {
+		text += length - capacity;
+		length = capacity;
+	}
+
+	start = readl(base + 4);
+	size = readl(base + 8);
+	if (size > capacity || start >= capacity)
+		return;
+
+	if (length > capacity - size)
+		size = capacity;
+	else
+		size += length;
+
+	old = start;
+	start += length;
+	if (start >= capacity)
+		start -= capacity;
+
+	remain = capacity - old;
+	if (remain < length) {
+		memcpy_toio(base + header + old, text, remain);
+		memcpy_toio(base + header, text + remain, length - remain);
+	} else {
+		memcpy_toio(base + header + old, text, length);
+	}
+	writel(start, base + 4);
+	writel(size, base + 8);
+}
+
+static struct console b2n_early_console = {
+	.name	= "b2nram",
+	.write	= b2n_early_console_write,
+	.flags	= CON_PRINTBUFFER | CON_ENABLED,
+	.index	= -1,
+};
+
+static int __init b2n_pstore_early_console_init(void)
+{
+	phys_addr_t console_phys;
+	unsigned int header;
+	u32 signature;
+
+	header = persistent_ram_header_bytes();
+	if (header >= B2N_PSTORE_CONSOLE)
+		return 0;
+	if (B2N_PSTORE_RECORD + B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE +
+	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
+		return 0;
+
+	console_phys = B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
+		       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
+	b2n_early_base = ioremap_wc(console_phys, B2N_PSTORE_CONSOLE);
+	if (!b2n_early_base) {
+		pr_err("early console map failed at %pa\n", &console_phys);
+		return 0;
+	}
+
+	b2n_early_header = header;
+	b2n_early_capacity = B2N_PSTORE_CONSOLE - header;
+	signature = persistent_ram_zone_sig(0);
+	writel(signature, b2n_early_base);
+	writel(0, b2n_early_base + 4);
+	writel(0, b2n_early_base + 8);
+	register_console(&b2n_early_console);
+	pr_info("early console 0x%x@%pa\n", B2N_PSTORE_CONSOLE, &console_phys);
+	return 0;
+}
+console_initcall(b2n_pstore_early_console_init);
 
 struct ramoops_context {
 	struct persistent_ram_zone **przs;
@@ -688,8 +791,14 @@ static int ramoops_probe(struct platform_device *pdev)
 		goto fail_clear;
 	}
 
+	/*
+	 * The early console writes this same zone. Stop it before pstore
+	 * takes the header, and leave it running if registration fails.
+	 */
+	b2n_pstore_early_handoff = true;
 	err = pstore_register(&cxt->pstore);
 	if (err) {
+		b2n_pstore_early_handoff = false;
 		pr_err("registering with pstore failed\n");
 		goto fail_buf;
 	}

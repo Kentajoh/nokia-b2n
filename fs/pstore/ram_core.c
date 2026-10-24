@@ -38,6 +38,23 @@ struct persistent_ram_buffer {
 
 #define PERSISTENT_RAM_SIG (0x43474244) /* DBGC */
 
+unsigned int persistent_ram_header_bytes(void)
+{
+	/*
+	 * The early console writes sig, start, and size at these offsets.
+	 * Recovery reads the same struct.
+	 */
+	BUILD_BUG_ON(offsetof(struct persistent_ram_buffer, start) != 4);
+	BUILD_BUG_ON(offsetof(struct persistent_ram_buffer, size) != 8);
+	BUILD_BUG_ON(offsetof(struct persistent_ram_buffer, data) != 12);
+	return sizeof(struct persistent_ram_buffer);
+}
+
+u32 persistent_ram_zone_sig(u32 seed)
+{
+	return seed ^ PERSISTENT_RAM_SIG;
+}
+
 static inline size_t buffer_size(struct persistent_ram_zone *prz)
 {
 	return atomic_read(&prz->buffer->size);
