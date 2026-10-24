@@ -554,14 +554,14 @@ asmlinkage __visible void __init start_kernel(void)
 	 * kmem_cache_init()
 	 */
 	setup_log_buf(0);
-#ifdef CONFIG_PSTORE_RAM
-	b2n_pstore_arm_early();
-#endif
 	pidhash_init();
 	vfs_caches_init_early();
 	sort_main_extable();
 	trap_init();
 	mm_init();
+#ifdef CONFIG_PSTORE_RAM
+	b2n_pstore_arm_early();
+#endif
 
 	/*
 	 * Set up the scheduler prior starting any interrupts (such as the

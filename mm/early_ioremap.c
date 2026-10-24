@@ -211,6 +211,12 @@ early_ioremap(resource_size_t phys_addr, unsigned long size)
 	return __early_ioremap(phys_addr, size, FIXMAP_PAGE_IO);
 }
 
+void __init __iomem *
+early_ioremap_prot(resource_size_t phys_addr, unsigned long size, pgprot_t prot)
+{
+	return __early_ioremap(phys_addr, size, prot);
+}
+
 /* Remap memory */
 void __init *
 early_memremap(resource_size_t phys_addr, unsigned long size)

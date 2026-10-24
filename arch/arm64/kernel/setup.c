@@ -307,6 +307,10 @@ u64 __cpu_logical_map[NR_CPUS] = { [0 ... NR_CPUS-1] = INVALID_HWID };
 
 void __init __weak init_random_pool(void) { }
 
+#ifdef CONFIG_PSTORE_RAM
+void __init b2n_pstore_stamp_early(void);
+#endif
+
 void __init setup_arch(char **cmdline_p)
 {
 	pr_info("Boot CPU: AArch64 Processor [%08x]\n", read_cpuid_id());
@@ -321,6 +325,9 @@ void __init setup_arch(char **cmdline_p)
 
 	early_fixmap_init();
 	early_ioremap_init();
+#ifdef CONFIG_PSTORE_RAM
+	b2n_pstore_stamp_early();
+#endif
 
 	setup_machine_fdt(__fdt_pointer);
 
