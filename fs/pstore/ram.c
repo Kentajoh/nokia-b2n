@@ -31,6 +31,7 @@
 #include <linux/pstore.h>
 #include <linux/time.h>
 #include <linux/io.h>
+#include <asm/early_ioremap.h>
 #include <linux/ioport.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -95,8 +96,9 @@ MODULE_PARM_DESC(ramoops_ecc,
  * Recovery reads one fixed layout and ignores a command line that moves it:
  * 2 MiB at 0xacb00000, then 4 KiB oops records, a 256 KiB console, and 4 KiB
  * ftrace and pmsg zones. The console therefore starts 0x1be000 bytes in.
- * console_init maps it before any initcall, because a panic before
- * ramoops_init leaves the previous Android record untouched.
+ * It is mapped from setup_log_buf(), before mm_init and console_init,
+ * because a panic before console_init leaves the previous Android record
+ * untouched.
  */
 #define B2N_PSTORE_PHYS		0xacb00000UL
 #define B2N_PSTORE_TOTAL	0x00200000UL
@@ -159,11 +161,51 @@ static struct console b2n_early_console = {
 	.index	= -1,
 };
 
+static phys_addr_t b2n_console_phys(void)
+{
+	return B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
+	       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
+}
+
+void __init b2n_pstore_arm_early(void)
+{
+	phys_addr_t console_phys;
+	unsigned int header;
+	void __iomem *base;
+
+	if (b2n_early_base)
+		return;
+	header = persistent_ram_header_bytes();
+	if (header >= B2N_PSTORE_CONSOLE)
+		return;
+	if (B2N_PSTORE_RECORD + B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE +
+	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
+		return;
+
+	console_phys = b2n_console_phys();
+	base = early_ioremap(console_phys, B2N_PSTORE_CONSOLE);
+	if (!base)
+		return;
+
+	b2n_early_header = header;
+	b2n_early_capacity = B2N_PSTORE_CONSOLE - header;
+	b2n_early_base = base;
+	writel(persistent_ram_zone_sig(0), base);
+	writel(0, base + 4);
+	writel(0, base + 8);
+	register_console(&b2n_early_console);
+	pr_info("early console armed 0x%x@%pa\n",
+		B2N_PSTORE_CONSOLE, &console_phys);
+}
+
 static int __init b2n_pstore_early_console_init(void)
 {
 	phys_addr_t console_phys;
 	unsigned int header;
 	u32 signature;
+
+	if (b2n_early_base)
+		return 0;
 
 	header = persistent_ram_header_bytes();
 	if (header >= B2N_PSTORE_CONSOLE)
@@ -172,8 +214,7 @@ static int __init b2n_pstore_early_console_init(void)
 	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
 		return 0;
 
-	console_phys = B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
-		       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
+	console_phys = b2n_console_phys();
 	b2n_early_base = ioremap_wc(console_phys, B2N_PSTORE_CONSOLE);
 	if (!b2n_early_base) {
 		pr_err("early console map failed at %pa\n", &console_phys);

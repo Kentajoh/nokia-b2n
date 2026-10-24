@@ -493,6 +493,10 @@ static void __init mm_init(void)
 	kaiser_init();
 }
 
+#ifdef CONFIG_PSTORE_RAM
+void __init b2n_pstore_arm_early(void);
+#endif
+
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
@@ -550,6 +554,9 @@ asmlinkage __visible void __init start_kernel(void)
 	 * kmem_cache_init()
 	 */
 	setup_log_buf(0);
+#ifdef CONFIG_PSTORE_RAM
+	b2n_pstore_arm_early();
+#endif
 	pidhash_init();
 	vfs_caches_init_early();
 	sort_main_extable();
