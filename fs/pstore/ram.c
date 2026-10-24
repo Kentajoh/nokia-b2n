@@ -31,11 +31,6 @@
 #include <linux/pstore.h>
 #include <linux/time.h>
 #include <linux/io.h>
-#include <asm/early_ioremap.h>
-#include <asm/pgtable.h>
-
-void __init __iomem *early_ioremap_prot(resource_size_t phys_addr,
-					unsigned long size, pgprot_t prot);
 #include <linux/ioport.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -100,9 +95,8 @@ MODULE_PARM_DESC(ramoops_ecc,
  * Recovery reads one fixed layout and ignores a command line that moves it:
  * 2 MiB at 0xacb00000, then 4 KiB oops records, a 256 KiB console, and 4 KiB
  * ftrace and pmsg zones. The console therefore starts 0x1be000 bytes in.
- * The first instruction of the kernel writes "H" here with the MMU off.
- * "A" is appended once the early remap exists, and "B" once the
- * write-combined console is attached after mm_init.
+ * console_init maps it before running console initcalls. The VT console
+ * initcall can panic before a later one gets to run.
  */
 #define B2N_PSTORE_PHYS		0xacb00000UL
 #define B2N_PSTORE_TOTAL	0x00200000UL
@@ -165,133 +159,27 @@ static struct console b2n_early_console = {
 	.index	= -1,
 };
 
-static phys_addr_t b2n_console_phys(void)
-{
-	return B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
-	       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
-}
-
-static bool b2n_pstore_layout_ok(unsigned int header)
-{
-	if (header >= PAGE_SIZE || header + 4 > PAGE_SIZE)
-		return false;
-	if (header >= B2N_PSTORE_CONSOLE)
-		return false;
-	if (B2N_PSTORE_RECORD + B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE +
-	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
-		return false;
-	return true;
-}
-
-static void b2n_pstore_publish(void __iomem *base, unsigned int header,
-			       const char *text, unsigned int length)
-{
-	unsigned int i;
-
-	for (i = 0; i < length; i++)
-		writeb(text[i], base + header + i);
-	writel(length, base + 4);
-	writel(length, base + 8);
-	writel(persistent_ram_zone_sig(0), base);
-}
-
-void __init b2n_pstore_stamp_early(void)
-{
-	phys_addr_t console_phys;
-	unsigned int header;
-	void __iomem *base;
-	u32 sig, size;
-	const char tag[] = "A\n";
-
-	header = persistent_ram_header_bytes();
-	if (!b2n_pstore_layout_ok(header))
-		return;
-
-	console_phys = b2n_console_phys();
-	base = early_ioremap_prot(console_phys, PAGE_SIZE,
-				  __pgprot(PROT_NORMAL_NC));
-	if (!base)
-		return;
-
-	sig = readl(base);
-	size = readl(base + 8);
-	if (sig == persistent_ram_zone_sig(0) && size == 2 &&
-	    readb(base + header) == 'H') {
-		writeb('A', base + header + size);
-		writeb('\n', base + header + size + 1);
-		size += 2;
-		writel(size, base + 4);
-		writel(size, base + 8);
-	} else {
-		b2n_pstore_publish(base, header, tag, sizeof(tag) - 1);
-	}
-	early_iounmap(base, PAGE_SIZE);
-}
-
-void __init b2n_pstore_arm_early(void)
-{
-	phys_addr_t console_phys;
-	unsigned int header;
-	void __iomem *base;
-	u32 sig, size;
-	const char tag[] = "B\n";
-
-	if (b2n_early_base)
-		return;
-	header = persistent_ram_header_bytes();
-	if (!b2n_pstore_layout_ok(header))
-		return;
-
-	console_phys = b2n_console_phys();
-	base = ioremap_wc(console_phys, B2N_PSTORE_CONSOLE);
-	if (!base)
-		return;
-
-	b2n_early_header = header;
-	b2n_early_capacity = B2N_PSTORE_CONSOLE - header;
-	b2n_early_base = base;
-
-	sig = readl(base);
-	size = readl(base + 8);
-	if (sig == persistent_ram_zone_sig(0) &&
-	    size >= 2 && size <= 8 &&
-	    size + 2 <= b2n_early_capacity &&
-	    (readb(base + header) == 'H' || readb(base + header) == 'A')) {
-		writeb('B', base + header + size);
-		writeb('\n', base + header + size + 1);
-		size += 2;
-		writel(size, base + 4);
-		writel(size, base + 8);
-	} else {
-		b2n_pstore_publish(base, header, tag, sizeof(tag) - 1);
-	}
-
-	register_console(&b2n_early_console);
-	pr_info("early console armed 0x%x@%pa\n",
-		B2N_PSTORE_CONSOLE, &console_phys);
-}
-
-static int __init b2n_pstore_early_console_init(void)
+void __init b2n_pstore_arm_console(void)
 {
 	phys_addr_t console_phys;
 	unsigned int header;
 	u32 signature;
 
 	if (b2n_early_base)
-		return 0;
-
+		return;
 	header = persistent_ram_header_bytes();
 	if (header >= B2N_PSTORE_CONSOLE)
-		return 0;
+		return;
 	if (B2N_PSTORE_RECORD + B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE +
 	    B2N_PSTORE_PMSG > B2N_PSTORE_TOTAL)
-		return 0;
+		return;
 
-	console_phys = b2n_console_phys();
+	console_phys = B2N_PSTORE_PHYS + B2N_PSTORE_TOTAL -
+		       (B2N_PSTORE_CONSOLE + B2N_PSTORE_FTRACE + B2N_PSTORE_PMSG);
 	b2n_early_base = ioremap_wc(console_phys, B2N_PSTORE_CONSOLE);
 	if (!b2n_early_base) {
 		pr_err("early console map failed at %pa\n", &console_phys);
-		return 0;
+		return;
 	}
 
 	b2n_early_header = header;
@@ -302,6 +190,11 @@ static int __init b2n_pstore_early_console_init(void)
 	writel(0, b2n_early_base + 8);
 	register_console(&b2n_early_console);
 	pr_info("early console 0x%x@%pa\n", B2N_PSTORE_CONSOLE, &console_phys);
+}
+
+static int __init b2n_pstore_early_console_init(void)
+{
+	b2n_pstore_arm_console();
 	return 0;
 }
 console_initcall(b2n_pstore_early_console_init);

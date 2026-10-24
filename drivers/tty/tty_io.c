@@ -3612,9 +3612,17 @@ void tty_default_fops(struct file_operations *fops)
  * Just do some early initializations, and do the complex setup
  * later.
  */
+#ifdef CONFIG_PSTORE_RAM
+void __init b2n_pstore_arm_console(void);
+#endif
+
 void __init console_init(void)
 {
 	initcall_t *call;
+
+#ifdef CONFIG_PSTORE_RAM
+	b2n_pstore_arm_console();
+#endif
 
 	/* Setup the default TTY line discipline. */
 	tty_ldisc_begin();
