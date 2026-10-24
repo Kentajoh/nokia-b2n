@@ -32,7 +32,7 @@ jobs:
           cp workdir/tmp/partitions/boot.img out/boot.img
           python3 - <<'PY'
           import pathlib, struct, tarfile
-          data = pathlib.Path("out/boot.img").read_bytes()
+          data = bytearray(pathlib.Path("out/boot.img").read_bytes())
           if data[:8] != b"ANDROID!":
               raise SystemExit("boot.img is missing the Android boot magic")
           kernel_size, kernel_addr, ramdisk_size, ramdisk_addr, second_size, second_addr, tags_addr, page_size, header_version = struct.unpack_from("<9I", data, 8)
@@ -44,6 +44,24 @@ jobs:
               raise SystemExit("unexpected boot header")
           if kernel_size == 0 or ramdisk_size == 0:
               raise SystemExit("boot image is missing the kernel or ramdisk")
+          # Stock boot_a uses second_addr 0xf00000 with no second image.
+          # The image is padded to the partition and an AVB footer is appended
+          # even when append_vbmeta is false. This device's vbmeta slots are
+          # empty and stock boot has no footer, so drop it before publishing.
+          if second_size == 0 and second_addr != 0x00F00000:
+              struct.pack_into("<I", data, 28, 0x00F00000)
+              print("set second_addr to 0xf00000")
+          if data[-64:-60] == b"AVBf":
+              original, vbmeta_off, vbmeta_size = struct.unpack_from(">QQQ", data[-64:], 12)
+              if data[vbmeta_off:vbmeta_off + 4] != b"AVB0":
+                  raise SystemExit(f"AVB footer does not point at AVB0 ({vbmeta_off})")
+              data[vbmeta_off:] = b"\x00" * (len(data) - vbmeta_off)
+              print(f"removed AVB footer, original image {original} bytes, vbmeta {vbmeta_size} bytes")
+          cmdline = bytes(data[64:64 + 512]).split(b"\x00", 1)[0]
+          print(f"cmdline {len(cmdline)} bytes: {cmdline.decode()}")
+          if b"ramoops.console_size=0x40000" not in cmdline:
+              raise SystemExit("boot command line is missing the recovery ramoops layout")
+          pathlib.Path("out/boot.img").write_bytes(data)
           archive = pathlib.Path("out/device_B2N.tar.xz")
           if not archive.is_file():
               raise SystemExit("device_B2N.tar.xz was not produced")
