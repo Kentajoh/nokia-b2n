@@ -16,6 +16,7 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/ratelimit.h>
+#include <linux/kthread.h>
 
 
 #define MIN_TTYB_SIZE	256
@@ -36,6 +37,31 @@
  */
 
 #define TTY_BUFFER_PAGE	(((PAGE_SIZE - sizeof(struct tty_buffer)) / 2) & ~0xFF)
+
+static void tty_buffer_start_worker(struct tty_port *port)
+{
+	struct task_struct *thread;
+
+	if (port->worker_thread || !kthreadd_task)
+		return;
+
+	thread = kthread_run(kthread_worker_fn, &port->worker,
+			     "tty_worker_thread");
+	if (IS_ERR(thread)) {
+		pr_err("Unable to start tty_worker_thread\n");
+		return;
+	}
+	if (cmpxchg(&port->worker_thread, NULL, thread))
+		kthread_stop(thread);
+}
+
+static bool tty_buffer_queue_work(struct tty_port *port)
+{
+	tty_buffer_start_worker(port);
+	if (IS_ERR_OR_NULL(port->worker_thread))
+		return false;
+	return queue_kthread_work(&port->worker, &port->buf.work);
+}
 
 /**
  *	tty_buffer_lock_exclusive	-	gain exclusive access to buffer
@@ -71,7 +97,7 @@ void tty_buffer_unlock_exclusive(struct tty_port *port)
 	atomic_dec(&buf->priority);
 	mutex_unlock(&buf->lock);
 	if (restart)
-		queue_kthread_work(&port->worker, &buf->work);
+		tty_buffer_queue_work(port);
 }
 EXPORT_SYMBOL_GPL(tty_buffer_unlock_exclusive);
 
@@ -413,7 +439,7 @@ void tty_schedule_flip(struct tty_port *port)
 	struct tty_bufhead *buf = &port->buf;
 
 	tty_flip_buffer_commit(buf->tail);
-	queue_kthread_work(&port->worker, &buf->work);
+	tty_buffer_queue_work(port);
 }
 EXPORT_SYMBOL(tty_schedule_flip);
 
@@ -581,7 +607,7 @@ int tty_insert_flip_string_and_push_buffer(struct tty_port *port,
 		tty_flip_buffer_commit(buf->tail);
 	spin_unlock_irqrestore(&port->lock, flags);
 
-	queue_kthread_work(&port->worker, &buf->work);
+	tty_buffer_queue_work(port);
 
 	return size;
 }
@@ -608,17 +634,13 @@ void tty_buffer_init(struct tty_port *port)
 	buf->mem_limit = TTYB_DEFAULT_MEM_LIMIT;
 	init_kthread_work(&buf->work, flush_to_ldisc);
 	init_kthread_worker(&port->worker);
-	port->worker_thread = kthread_run(kthread_worker_fn, &port->worker,
-					  "tty_worker_thread");
-	if (IS_ERR(port->worker_thread)) {
-		/*
-		 * Not good, we can't unwind, this tty is going to be really
-		 * sad...
-		 */
-		pr_err("Unable to start tty_worker_thread\n");
-	}
-
-
+	port->worker_thread = NULL;
+	/*
+	 * The VT console is created from console_init(), which runs before
+	 * rest_init() starts kthreadd. Starting the worker here dereferences
+	 * a NULL kthreadd and kills the idle task. The first queue starts it.
+	 */
+	tty_buffer_start_worker(port);
 }
 
 /**
@@ -646,7 +668,7 @@ void tty_buffer_set_lock_subclass(struct tty_port *port)
 
 bool tty_buffer_restart_work(struct tty_port *port)
 {
-	return queue_kthread_work(&port->worker, &port->buf.work);
+	return tty_buffer_queue_work(port);
 }
 
 bool tty_buffer_cancel_work(struct tty_port *port)
