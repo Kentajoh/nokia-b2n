@@ -41,6 +41,8 @@ deviceinfo_rootfs_image_sector_size="4096"
 # slot suffix, so system becomes system_b. The boot header command line is
 # 512 bytes, so the scheduler and debug tokens from stock are omitted here.
 # The ramoops sizes match the region recovery already reads: 2 MiB at
-# 0xacb00000 with a 256 KiB console. panic=0 leaves a frozen boot in place
-# long enough to enter Download mode and copy that console.
+# 0xacb00000 with a 256 KiB console. The kernel maps that console during
+# console_init, before initcalls, so a panic before ramoops_init is still
+# recorded there. panic=0 leaves the boot frozen long enough to enter
+# Download mode and copy the console.
 deviceinfo_kernel_cmdline="console=tty0 console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000 androidboot.hardware=qcom androidboot.usbcontroller=a800000.dwc3 systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 panic=0 ramoops.mem_address=0xacb00000 ramoops.mem_size=0x200000 ramoops.console_size=0x40000 ramoops.record_size=0x1000 ramoops.ftrace_size=0x1000 ramoops.pmsg_size=0x1000"
