@@ -213,9 +213,9 @@ ENTRY(stext)
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
 	 * The record starts as "L\n" and becomes "P\n" once the page tables
-	 * exist. The kernel enables the MMU, applies relocations, and stops
-	 * before entering C code. x0-x3 are the boot arguments and must stay
-	 * intact.
+	 * exist. The kernel enables the MMU, applies relocations, jumps to
+	 * the switched entry, and stops there. x0-x3 are the boot arguments
+	 * and must stay intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16
@@ -451,6 +451,7 @@ ENDPROC(__create_page_tables)
  */
 	.set	initial_sp, init_thread_union + THREAD_START_SP
 __primary_switched:
+	b	.
 	mov	x28, lr				// preserve LR
 
 	adr_l	x8, vectors			// load VBAR_EL1 with virtual
@@ -800,7 +801,6 @@ __primary_switch:
 
 1:
 #endif
-	b	.
 	ldr	x8, =__primary_switched
 	br	x8
 ENDPROC(__primary_switch)
