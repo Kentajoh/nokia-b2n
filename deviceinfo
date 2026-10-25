@@ -43,7 +43,7 @@ deviceinfo_rootfs_image_sector_size="4096"
 # The ramoops sizes match the region recovery already reads: 2 MiB at
 # 0xacb00000 with a 256 KiB console. This build still defers the VT tty
 # worker. It writes P, enables the MMU, applies relocations, and stops
-# before C code. P means relocation left the stamp intact. No letter
-# means relocation destroyed it. The kernel stays on screen until
+# at the switched kernel entry. P means that jump left the stamp intact.
+# No letter means the jump destroyed it. The kernel stays on screen until
 # Download mode is entered by hand.
 deviceinfo_kernel_cmdline="console=tty0 console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000 androidboot.hardware=qcom androidboot.usbcontroller=a800000.dwc3 systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 panic=0 ramoops.mem_address=0xacb00000 ramoops.mem_size=0x200000 ramoops.console_size=0x40000 ramoops.record_size=0x1000 ramoops.ftrace_size=0x1000 ramoops.pmsg_size=0x1000"
