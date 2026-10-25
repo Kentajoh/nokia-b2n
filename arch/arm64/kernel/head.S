@@ -208,6 +208,25 @@ efi_header_end:
 	__INIT
 
 ENTRY(stext)
+	/*
+	 * Stamp the pmsg zone before any later code runs. The console writer
+	 * replaces the console zone once it logs the VT oops, so this marker
+	 * has to live in the pmsg record recovery reads, at 0xaccff000.
+	 * Signature, start, and size match persistent_ram_buffer. x0-x3 are
+	 * the boot arguments and must stay intact.
+	 */
+	mov	x5, #0xf000
+	movk	x5, #0xaccf, lsl #16
+	mov	w6, #0x4244
+	movk	w6, #0x4347, lsl #16
+	str	w6, [x5]
+	mov	w6, #2
+	str	w6, [x5, #4]
+	str	w6, [x5, #8]
+	mov	w6, #0x0a48
+	strh	w6, [x5, #12]
+	dc	cvac, x5
+	dsb	sy
 	bl	preserve_boot_args
 	bl	el2_setup			// Drop to EL1, w20=cpu_boot_mode
 	adrp	x24, __PHYS_OFFSET
