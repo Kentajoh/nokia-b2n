@@ -212,6 +212,7 @@ ENTRY(stext)
 	 * Stamp the pmsg zone before any later code runs. The console writer
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
+	 * The record is "T\n", distinct from the H left by the previous boot.
 	 * Signature, start, and size match persistent_ram_buffer. x0-x3 are
 	 * the boot arguments and must stay intact.
 	 */
@@ -223,7 +224,7 @@ ENTRY(stext)
 	mov	w6, #2
 	str	w6, [x5, #4]
 	str	w6, [x5, #8]
-	mov	w6, #0x0a48
+	mov	w6, #0x0a54
 	strh	w6, [x5, #12]
 	dc	cvac, x5
 	dsb	sy
