@@ -212,9 +212,9 @@ ENTRY(stext)
 	 * Stamp the pmsg zone before any later code runs. The console writer
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
-	 * The record starts as "L\n". A second store replaces it with "P\n"
-	 * once the page tables exist, and then the kernel stops. x0-x3 are
-	 * the boot arguments and must stay intact.
+	 * The record starts as "L\n" and becomes "P\n" once the page tables
+	 * exist. The kernel then enables the MMU and stops before relocation.
+	 * x0-x3 are the boot arguments and must stay intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16
@@ -255,7 +255,6 @@ ENTRY(stext)
 	strh	w6, [x5, #12]
 	dc	cvac, x5
 	dsb	sy
-	b	.
 	b	__enable_mmu
 ENDPROC(stext)
 
@@ -775,6 +774,7 @@ __no_granule_support:
 ENDPROC(__no_granule_support)
 
 __primary_switch:
+	b	.
 #ifdef CONFIG_RELOCATABLE
 	/*
 	 * Iterate over each entry in the relocation table, and apply the
