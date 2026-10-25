@@ -212,8 +212,9 @@ ENTRY(stext)
 	 * Stamp the pmsg zone before any later code runs. The console writer
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
-	 * The record is "L\n". Stop immediately after the store so a later
-	 * crash cannot erase it. x0-x3 are the boot arguments.
+	 * The record starts as "L\n". A second store replaces it with "P\n"
+	 * once the page tables exist, and then the kernel stops. x0-x3 are
+	 * the boot arguments and must stay intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16
@@ -227,7 +228,6 @@ ENTRY(stext)
 	strh	w6, [x5, #12]
 	dc	cvac, x5
 	dsb	sy
-	b	.
 	bl	preserve_boot_args
 	bl	el2_setup			// Drop to EL1, w20=cpu_boot_mode
 	adrp	x24, __PHYS_OFFSET
@@ -243,6 +243,19 @@ ENTRY(stext)
 	bl	__cpu_setup			// initialise processor
 	adr_l	x27, __primary_switch		// address to jump to after
 						// MMU has been enabled
+	mov	x5, #0xf000
+	movk	x5, #0xaccf, lsl #16
+	mov	w6, #0x4244
+	movk	w6, #0x4347, lsl #16
+	str	w6, [x5]
+	mov	w6, #2
+	str	w6, [x5, #4]
+	str	w6, [x5, #8]
+	mov	w6, #0x0a50
+	strh	w6, [x5, #12]
+	dc	cvac, x5
+	dsb	sy
+	b	.
 	b	__enable_mmu
 ENDPROC(stext)
 
