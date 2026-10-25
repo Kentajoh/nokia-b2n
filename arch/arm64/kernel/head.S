@@ -213,8 +213,9 @@ ENTRY(stext)
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
 	 * The record starts as "L\n" and becomes "P\n" once the page tables
-	 * exist. The kernel then enables the MMU and stops before relocation.
-	 * x0-x3 are the boot arguments and must stay intact.
+	 * exist. The kernel enables the MMU, applies relocations, and stops
+	 * before entering C code. x0-x3 are the boot arguments and must stay
+	 * intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16
@@ -774,7 +775,6 @@ __no_granule_support:
 ENDPROC(__no_granule_support)
 
 __primary_switch:
-	b	.
 #ifdef CONFIG_RELOCATABLE
 	/*
 	 * Iterate over each entry in the relocation table, and apply the
@@ -800,6 +800,7 @@ __primary_switch:
 
 1:
 #endif
+	b	.
 	ldr	x8, =__primary_switched
 	br	x8
 ENDPROC(__primary_switch)
