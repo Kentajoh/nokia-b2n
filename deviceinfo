@@ -41,9 +41,9 @@ deviceinfo_rootfs_image_sector_size="4096"
 # slot suffix, so system becomes system_b. The boot header command line is
 # 512 bytes, so the scheduler and debug tokens from stock are omitted here.
 # The ramoops sizes match the region recovery already reads: 2 MiB at
-# 0xacb00000 with a 256 KiB console. This build keeps the entry stamp and
-# starts the VT tty worker only after kthreadd exists. The stamp byte is
-# T, in the pmsg record at 0xaccff000, so it cannot be confused with the
-# H already stored. panic=0 leaves the boot frozen long enough to enter
-# Download mode and copy both records.
+# 0xacb00000 with a 256 KiB console. This build writes L into the pmsg
+# record at 0xaccff000 and then stops. The tty worker is still deferred.
+# L means the first instruction ran. No L means this image never started.
+# panic=0 leaves the boot frozen long enough to enter Download mode and
+# copy the record.
 deviceinfo_kernel_cmdline="console=tty0 console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000 androidboot.hardware=qcom androidboot.usbcontroller=a800000.dwc3 systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 panic=0 ramoops.mem_address=0xacb00000 ramoops.mem_size=0x200000 ramoops.console_size=0x40000 ramoops.record_size=0x1000 ramoops.ftrace_size=0x1000 ramoops.pmsg_size=0x1000"
