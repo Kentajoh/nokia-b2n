@@ -159,7 +159,7 @@ static struct console b2n_early_console = {
 	.index	= -1,
 };
 
-static int __init b2n_pstore_early_console_init(void)
+int __init b2n_pstore_early_console_init(void)
 {
 	phys_addr_t console_phys;
 	unsigned int header;

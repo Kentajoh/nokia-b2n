@@ -603,7 +603,6 @@ asmlinkage __visible void __init start_kernel(void)
 	 * we've done PCI setups etc, and console_init() must be aware of
 	 * this. But we do want output early, in case something goes wrong.
 	 */
-	asm volatile("b ." ::: "memory");
 	console_init();
 	if (panic_later)
 		panic("Too many boot %s vars at `%s'", panic_later,

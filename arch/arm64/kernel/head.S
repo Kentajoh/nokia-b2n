@@ -213,9 +213,9 @@ ENTRY(stext)
 	 * replaces the console zone once it logs the VT oops, so this marker
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
 	 * The record starts as "L\n" and becomes "P\n" once the page tables
-	 * exist. The kernel enables the MMU, relocates, clears BSS, and enters
-	 * start_kernel. It stops immediately before the console is attached.
-	 * x0-x3 are the boot arguments and must stay intact.
+	 * exist. The kernel enables the MMU, relocates, clears BSS, enters
+	 * start_kernel, arms the ramoops console, and stops before the VT
+	 * initcall. x0-x3 are the boot arguments and must stay intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16

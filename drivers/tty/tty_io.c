@@ -3612,9 +3612,18 @@ void tty_default_fops(struct file_operations *fops)
  * Just do some early initializations, and do the complex setup
  * later.
  */
+int __init b2n_pstore_early_console_init(void);
+
 void __init console_init(void)
 {
 	initcall_t *call;
+
+	/*
+	 * Publish the ramoops console before the VT initcall. Stop once
+	 * that writer has run, so a later oops cannot replace the record.
+	 */
+	b2n_pstore_early_console_init();
+	asm volatile("b ." ::: "memory");
 
 	/* Setup the default TTY line discipline. */
 	tty_ldisc_begin();
