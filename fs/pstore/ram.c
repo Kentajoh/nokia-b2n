@@ -165,6 +165,8 @@ int __init b2n_pstore_early_console_init(void)
 	unsigned int header;
 	u32 signature;
 
+	if (b2n_early_base)
+		return 0;
 	header = persistent_ram_header_bytes();
 	if (header >= B2N_PSTORE_CONSOLE)
 		return 0;

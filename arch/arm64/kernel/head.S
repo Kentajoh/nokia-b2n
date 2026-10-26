@@ -214,8 +214,8 @@ ENTRY(stext)
 	 * has to live in the pmsg record recovery reads, at 0xaccff000.
 	 * The record starts as "L\n" and becomes "P\n" once the page tables
 	 * exist. The kernel enables the MMU, relocates, clears BSS, enters
-	 * start_kernel, arms the ramoops console, and stops before the VT
-	 * initcall. x0-x3 are the boot arguments and must stay intact.
+	 * start_kernel, arms the ramoops console, and continues into the
+	 * console initcalls. x0-x3 are the boot arguments and must stay intact.
 	 */
 	mov	x5, #0xf000
 	movk	x5, #0xaccf, lsl #16

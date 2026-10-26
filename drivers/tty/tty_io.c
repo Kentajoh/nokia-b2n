@@ -3619,11 +3619,11 @@ void __init console_init(void)
 	initcall_t *call;
 
 	/*
-	 * Publish the ramoops console before the VT initcall. Stop once
-	 * that writer has run, so a later oops cannot replace the record.
+	 * Publish the ramoops console before the VT initcall. The writer
+	 * is also a console initcall, and a second call would clear the
+	 * record it just wrote.
 	 */
 	b2n_pstore_early_console_init();
-	asm volatile("b ." ::: "memory");
 
 	/* Setup the default TTY line discipline. */
 	tty_ldisc_begin();
