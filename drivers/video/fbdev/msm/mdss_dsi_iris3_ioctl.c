@@ -848,8 +848,15 @@ int msmfb_iris_operate_conf(struct msm_fb_data_type *mfd,
 		return -EPERM;
 	}
 	pcfg = iris_get_cfg();
+	/*
+	 * The composer issues this ioctl while opening the HAL. On a panel
+	 * whose Iris device was never parsed, valid stays below 1 and the
+	 * old -EPERM made that open fail. There is nothing to configure, so
+	 * report success and leave the chip alone.
+	 */
 	if (pcfg->valid < 1) {
-		return -EPERM;
+		pr_info_once("iris: composer ioctl ignored, device not initialized\n");
+		return 0;
 	}
 	pr_debug("%s type=0x%04x, count=%d\n", __func__, configure.type, configure.count);
 
