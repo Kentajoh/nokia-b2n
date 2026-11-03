@@ -1,0 +1,39 @@
+#!/bin/sh
+# Lomiri first-run wizard will not Continue until a language is selected.
+# This port's language model is empty, so mark the wizard complete the
+# same way the rootfs builder does (click framework in wizard-has-run).
+set -e
+fw=/usr/share/click/frameworks/current
+mark() {
+    home=$1
+    [ -d "$home" ] || mkdir -p "$home"
+    mkdir -p "$home/.config/lomiri" "$home/.config/ubuntu-system-settings"
+    if [ -f "$fw" ]; then
+        cp "$fw" "$home/.config/lomiri/wizard-has-run"
+    else
+        : >"$home/.config/lomiri/wizard-has-run"
+    fi
+    : >"$home/.config/ubuntu-system-settings/wizard-has-run"
+    chown -R 32011:32011 "$home/.config/lomiri" "$home/.config/ubuntu-system-settings" 2>/dev/null || true
+}
+# systemd sees /home/phablet; TWRP and early boot see the Halium userdata path.
+mark /home/phablet
+[ -d /data/user-data/phablet ] && mark /data/user-data/phablet
+
+# The wizard's "Swipe" option adds phablet to nopasswdlogin. Without that,
+# PAM still issues a passphrase prompt even though the unix password is empty,
+# and the greeter rejects every typed guess.
+add_nopasswd() {
+    grp=$1
+    [ -f "$grp" ] || return 0
+    grep -q '^nopasswdlogin:' "$grp" || return 0
+    grep -q '^nopasswdlogin:.*phablet' "$grp" && return 0
+    sed -i '/^nopasswdlogin:/ {
+      s/:$/:phablet/
+      t
+      s/$/,phablet/
+    }' "$grp"
+}
+add_nopasswd /etc/group
+add_nopasswd /data/system-data/etc/group
+echo "<3>b2n: lomiri wizard marked complete" > /dev/kmsg

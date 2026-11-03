@@ -1,0 +1,40 @@
+#!/bin/sh
+# The CLD driver is already in this kernel (wlan: driver loaded at ~1s).
+# wlan0 never appears until firmware can be read: WCNSS_qcom_cfg.ini and
+# wlan_mac.bin (the vendor symlink targets /mnt/vendor/persist/wlan_mac.bin).
+LOG=/var/log/lightdm/b2n-wifi.log
+{
+    echo "===== $(date -u 2>/dev/null || echo nodate) uname=$(uname -r) ====="
+    mkdir -p /lib/firmware /mnt/vendor/persist
+    if [ -d /vendor/firmware/wlan ] && [ ! -e /lib/firmware/wlan ]; then
+        ln -s /vendor/firmware/wlan /lib/firmware/wlan
+    fi
+    echo "persist=$(ls -l /mnt/vendor/persist/wlan_mac.bin 2>/dev/null | awk '{print $1,$5}')"
+    echo "ini=$(ls -l /vendor/etc/wifi/WCNSS_qcom_cfg.ini 2>/dev/null | awk '{print $1,$5}')"
+    echo "module=$(ls -d /sys/module/wlan 2>/dev/null)"
+    [ -e /sys/kernel/boot_wlan/boot_wlan ] && echo 1 >/sys/kernel/boot_wlan/boot_wlan
+    echo 1 >/dev/wcnss_wlan 2>/dev/null || true
+    rfkill unblock all 2>/dev/null || true
+    command -v nmcli >/dev/null && { nmcli networking on || true; nmcli radio wifi on || true; }
+
+    i=0
+    while [ "$i" -lt 30 ]; do
+        if [ -e /sys/module/wlan/parameters/fwpath ]; then
+            echo sta >/sys/module/wlan/parameters/fwpath
+        fi
+        if ip link show wlan0 >/dev/null 2>&1; then
+            ip link set wlan0 up || true
+            echo "wlan0 up after ${i} retries"
+            command -v nmcli >/dev/null && nmcli d
+            ls /sys/class/net
+            exit 0
+        fi
+        i=$((i + 1))
+        sleep 2
+    done
+    echo "wlan0 still missing"
+    ls /sys/class/net
+    ls /sys/module | grep -iE "wlan|icnss|cnss" || true
+    command -v nmcli >/dev/null && nmcli d
+    exit 0
+} >>"$LOG" 2>&1

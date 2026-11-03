@@ -1,0 +1,8 @@
+[Unit]
+Description=Ubuntu Touch session
+Requires=ubuntu-touch-session.target
+Wants=lomiri-full-greeter.service
+After=lomiri-full-greeter.service
+# Stock binds this target to the greeter with Requires= and PartOf=.
+# Unlocking stops lomiri-full-greeter, systemd then stops this target,
+# LightDM treats that as logout, and the compositor spinner comes back.

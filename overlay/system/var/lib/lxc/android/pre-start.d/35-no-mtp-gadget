@@ -1,0 +1,13 @@
+#!/bin/sh
+# Vendor kernel BUG: mkdir of mtp.gs0/ptp.gs1 runs alloc_inst_mtp_ptp, which
+# calls mutex_init on a failed allocation and panics. Halium does not need
+# Android MTP. Comment the instantiating mkdir; later symlinks fail cleanly.
+usb=/vendor/etc/init/hw/init.qcom.usb.rc
+if [ -f "$usb" ]; then
+    mount -o remount,rw /vendor 2>/dev/null || true
+    sed -i \
+        -e 's|^[[:space:]]*mkdir /config/usb_gadget/g1/functions/mtp.gs0|# b2n: skip mtp.gs0|' \
+        -e 's|^[[:space:]]*mkdir /config/usb_gadget/g1/functions/ptp.gs1|# b2n: skip ptp.gs1|' \
+        "$usb" 2>/dev/null || true
+fi
+echo "<3>b2n: skipped android mtp/ptp gadget mkdir" > /dev/kmsg

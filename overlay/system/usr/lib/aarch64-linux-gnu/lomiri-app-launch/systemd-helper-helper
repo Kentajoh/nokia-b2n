@@ -1,0 +1,21 @@
+#!/bin/sh
+# lomiri-app-launch copies this process environment into the app unit.
+# Nested Lomiri listens on $XDG_RUNTIME_DIR/mir_socket; the Lomiri process
+# itself has MIR_SOCKET=/run/mir_socket (the system compositor). Without
+# this rewrite, apps connect to USC, never appear in qtmir, and SIGSEGV.
+uid=$(id -u)
+rt="${XDG_RUNTIME_DIR:-/run/user/$uid}"
+export MIR_SOCKET="$rt/mir_socket"
+export MIR_SERVER_FILE="$MIR_SOCKET"
+unset MIR_SERVER_HOST_SOCKET
+unset MIR_SERVER_PLATFORM_PATH
+unset MIR_SERVER_PLATFORM_GRAPHICS_LIB
+unset HYBRIS_EGLPLATFORM
+unset EGL_PLATFORM
+export QT_QPA_PLATFORM=ubuntumirclient
+export HYBRIS_LD_LIBRARY_PATH="${HYBRIS_LD_LIBRARY_PATH:-/vendor/lib64/egl:/vendor/lib64:/system/lib64}"
+export ANDROID_ROOT="${ANDROID_ROOT:-/system}"
+export ANDROID_DATA="${ANDROID_DATA:-/data}"
+log="${XDG_RUNTIME_DIR:-/run/user/$uid}/b2n-ual.log"
+echo "b2n-ual-helper uid=$uid mir=$MIR_SOCKET egl=${HYBRIS_EGLPLATFORM-UNSET} qpa=$QT_QPA_PLATFORM" >>"$log" 2>/dev/null || true
+exec /usr/lib/aarch64-linux-gnu/lomiri-app-launch/systemd-helper-helper.real "$@"

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# /usr/sbin/lightdm-session is very X specific.  We don't want it for Ubuntu
+# Touch's Mir sessions.  So determine if we are running Mir or X and do the
+# right thing.  Ideally LightDM would do this for us, but in the meantime...
+
+LOG=/var/log/lightdm/b2n-session.log
+{
+    echo "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) wrapper pid=$$ uid=$(id -u) ====="
+    echo "args: $*"
+    echo "HOME=$HOME USER=$USER"
+    echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
+    echo "DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS"
+    echo "MIR_SOCKET=$MIR_SOCKET"
+    echo "MIR_SERVER_HOST_SOCKET=$MIR_SERVER_HOST_SOCKET"
+    echo "MIR_SERVER_FILE=$MIR_SERVER_FILE"
+    echo "MIR_SERVER_PLATFORM_PATH=${MIR_SERVER_PLATFORM_PATH-UNSET}"
+    echo "MIR_SERVER_PLATFORM_GRAPHICS_LIB=${MIR_SERVER_PLATFORM_GRAPHICS_LIB-UNSET}"
+    ls -ld "$HOME" "${XDG_RUNTIME_DIR:-/no-xdg}" "${XDG_RUNTIME_DIR:-/no-xdg}/bus" 2>&1
+} >>"$LOG" 2>&1
+
+unset MIR_SERVER_PLATFORM_PATH
+unset MIR_SERVER_PLATFORM_GRAPHICS_LIB
+
+if [ -n "$MIR_SOCKET" ] || [ -n "$MIR_SERVER_HOST_SOCKET" ]; then
+    exec "$@"
+else
+    echo "NO_MIR_SOCKET, using lightdm-session" >>"$LOG"
+    exec lightdm-session "$@"
+fi

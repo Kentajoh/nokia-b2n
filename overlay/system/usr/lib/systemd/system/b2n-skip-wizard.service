@@ -1,0 +1,13 @@
+[Unit]
+Description=Skip Lomiri first-run wizard (empty language list)
+DefaultDependencies=no
+After=local-fs.target
+Before=lightdm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/b2n-skip-wizard
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

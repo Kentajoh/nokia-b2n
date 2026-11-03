@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# WARNING: this wrapper is only for setting up screen environment variables
+# that would need to be shared between a greeter process and the user session.
+# Do NOT add any other hacks here.  We eventually intend for this wrapper to
+# go away, once we dynamically determine screen settings.
+
+export QT_QPA_PLATFORM=ubuntumirclient
+
+if [ -n "$(command -v device-info)" ]; then
+    GRID_UNIT_PX="$(device-info get GridUnit)"
+    QTWEBKIT_DPR="$(device-info get WebkitDpr)"
+    NATIVE_ORIENTATION="$(device-info get PrimaryOrientation)"
+fi
+
+# Workaround for bug 1308210 / 1318070 (x86 emulator and scopes)
+if systemd-detect-virt --quiet; then
+    cpu_mhz=$(grep -m1 "cpu MHz" /proc/cpuinfo | awk -F' ' '{ print $4 }')
+    if [ "$cpu_mhz" = "0.000" ]; then
+        export RDTSC_FREQUENCY=2000
+    fi
+fi
+
+# Set up xdg dirs
+[ -z "$XDG_CONFIG_DIRS" ] && export XDG_CONFIG_DIRS=$SNAP/etc/xdg
+[ -z "$XDG_DATA_DIRS" ] && export XDG_DATA_DIRS=$SNAP/usr/local/share:$SNAP/usr/share
+if [ -n "$DESKTOP_SESSION" ]; then
+    export XDG_CONFIG_DIRS=$SNAP/etc/xdg/xdg-$DESKTOP_SESSION:$XDG_CONFIG_DIRS
+    export XDG_DATA_DIRS=$SNAP/usr/share/$DESKTOP_SESSION:$XDG_DATA_DIRS
+fi
+
+# if /custom/xdg/config exists, add it to xdg_config_dirs. this is so upstart can get job definitions from /custom
+if [ -d /custom/xdg/config ]; then
+	export XDG_CONFIG_DIRS=/custom/xdg/config:$XDG_CONFIG_DIRS
+fi
+
+export GRID_UNIT_PX="${GRID_UNIT_PX:-18}"
+export QTWEBKIT_DPR="${QTWEBKIT_DPR:-2.0}"
+export NATIVE_ORIENTATION="${NATIVE_ORIENTATION:-portrait}"
+
+# Save some environment variables for adb and autopilot's benefit
+dot_profile=$HOME/.profile
+grep -q GRID_UNIT_PX $dot_profile || echo "export GRID_UNIT_PX=${GRID_UNIT_PX}" >> $dot_profile
+
+# Make sure we're also exporting the profile.d variables
+if [ -d $SNAP/etc/profile.d ]; then
+    for i in $SNAP/etc/profile.d/*.sh; do
+        if [ -r $i ]; then
+            . $i
+        fi
+    done
+    unset i
+fi
+
+if [ "$#" -ne 0 ]; then
+    exec $@
+else
+    # Import all environment variables into systemd. These include mir host
+    # socket (for Lomiri) and GRID_UNIT_PX. Although we're excluding certain
+    # session specific variables (see [1]).
+    # [1] https://salsa.debian.org/utopia-team/dbus/-/commit/634e1e747886c92aa1d3e04953a98aeb798188a2#a864707231427c2b03d8810e0a79f53c47280869
+    (
+        unset XDG_SEAT
+        unset XDG_SESSION_ID
+        unset XDG_VTNR
+        unset MIR_SERVER_PLATFORM_PATH
+        unset MIR_SERVER_PLATFORM_GRAPHICS_LIB
+
+        dbus-update-activation-environment --systemd --all
+        dbus-update-activation-environment --systemd MIR_SERVER_PLATFORM_PATH= MIR_SERVER_PLATFORM_GRAPHICS_LIB=
+    )
+
+    TARGET=ubuntu-touch-session-unencrypted.target
+    fscrypt status $HOME | grep -q 'is encrypted' && TARGET=ubuntu-touch-session-encrypted.target
+
+    exec /usr/share/ubuntu-touch-session/run-systemd-session $TARGET
+fi

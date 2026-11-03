@@ -1,0 +1,77 @@
+#!/bin/sh -ef
+
+# Copyright (C) 2021 UBports Foundation
+
+# Ensure the shell always gets unthrottled touch events, so that applications
+# who want full speed low-latency input can get it (LP: #1497105) and so that
+# apps can use QML touch compression safely (the QML touch compression
+# algorithm does not support nesting well - LP: #1486341, LP: #1556763 - so
+# must be fed by the raw input event stream from Unity8).
+export QML_NO_TOUCH_COMPRESSION=1
+
+# TODO: maybe allow this to be configurable somehow?
+export MIR_SERVER_ENABLE_MIRCLIENT=1
+export MIR_SERVER_PROMPT_FILE=1
+
+# Unlikely under systemd, but just in case.
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+    XDG_RUNTIME_DIR=/run/user/$(id -u)
+    export XDG_RUNTIME_DIR
+fi
+
+export MIR_SERVER_FILE="${XDG_RUNTIME_DIR}/mir_socket"
+
+rm -f "$MIR_SERVER_FILE"
+rm -f "${MIR_SERVER_FILE}_trusted"
+
+# TODO: maybe handle some kind of collision?
+export WAYLAND_DISPLAY=wayland-0
+
+# Apps connect to nested lomiri, not to the system compositor.
+# Vendor GLES must be on the user manager env; apps do not inherit lsc-wrapper.
+dbus-update-activation-environment --systemd MIR_SOCKET="${MIR_SERVER_FILE}"
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY
+dbus-update-activation-environment --systemd QT_QPA_PLATFORM=ubuntumirclient
+dbus-update-activation-environment --systemd HYBRIS_LD_LIBRARY_PATH="${HYBRIS_LD_LIBRARY_PATH:-/vendor/lib64/egl:/vendor/lib64:/system/lib64}"
+dbus-update-activation-environment --systemd ANDROID_ROOT=/system ANDROID_DATA=/data
+
+# Ensure that Lomiri uses the correct QPA.
+export QT_QPA_PLATFORM=mirserver
+
+# Allow Lomiri to assume user's logind Display session.
+export LOMIRI_AS_SYSTEMD_UNIT=1
+
+export MIR_SERVER_ENABLE_X11=1
+export MIR_SERVER_XWAYLAND_PATH=/usr/libexec/Xwayland.lomiri
+
+# Nested under the system compositor. The nested platform connects via
+# MIR_SERVER_HOST_SOCKET. MIR_SOCKET is copied into every app by ual, so
+# it must be the listen socket in MIR_SERVER_FILE.
+HOST="${MIR_SERVER_HOST_SOCKET:-/run/mir_socket}"
+export MIR_SERVER_HOST_SOCKET="$HOST"
+export MIR_SOCKET="$MIR_SERVER_FILE"
+
+# Do not load graphics-android2 as a server. That plugin takes HWC, which
+# the system compositor already owns. Nested graphics lives in libmirserver
+# and is selected when MIR_SOCKET points at the host compositor.
+unset MIR_SERVER_PLATFORM_GRAPHICS_LIB
+export MIR_SERVER_PLATFORM_PATH=/usr/lib/aarch64-linux-gnu/mir1/server-platform-nested
+
+# Same Android graphics environment the system compositor already needs.
+export HYBRIS_LD_LIBRARY_PATH="${HYBRIS_LD_LIBRARY_PATH:-/vendor/lib64/egl:/vendor/lib64:/system/lib64}"
+export HYBRIS_EGLPLATFORM=null
+export EGL_PLATFORM=null
+export MIR_SERVER_CONSOLE_PROVIDER=none
+export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libtls-padding.so /usr/lib/aarch64-linux-gnu/libb2n-abort.so"
+
+# Lomiri cannot work with software rendering
+unset LIBGL_ALWAYS_SOFTWARE
+if [ "$MESA_LOADER_DRIVER_OVERRIDE" = "swrast" ]; then
+    unset MESA_LOADER_DRIVER_OVERRIDE
+fi
+
+echo "lomiri-systemd-wrapper uid=$(id -u) MIR_SOCKET=$MIR_SOCKET MIR_SERVER_FILE=$MIR_SERVER_FILE MIR_SERVER_HOST_SOCKET=$MIR_SERVER_HOST_SOCKET MIR_SERVER_PLATFORM_PATH=$MIR_SERVER_PLATFORM_PATH MIR_SERVER_PLATFORM_GRAPHICS_LIB=${MIR_SERVER_PLATFORM_GRAPHICS_LIB-UNSET}" >>/var/log/lightdm/b2n-session.log
+
+exec env -u MIR_SERVER_PLATFORM_GRAPHICS_LIB \
+    MIR_SERVER_PLATFORM_PATH=/usr/lib/aarch64-linux-gnu/mir1/server-platform-nested \
+    /usr/libexec/lomiri-nested-exec "$@"

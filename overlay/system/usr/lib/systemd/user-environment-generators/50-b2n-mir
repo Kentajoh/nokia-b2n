@@ -1,0 +1,6 @@
+#!/bin/sh
+# Apps must connect to nested Lomiri, not to the system compositor.
+# Lomiri itself overrides MIR_SOCKET back to the host in lomiri-systemd-wrapper.
+uid=$(id -u)
+echo "MIR_SOCKET=/run/user/${uid}/mir_socket"
+echo "WAYLAND_DISPLAY=wayland-0"

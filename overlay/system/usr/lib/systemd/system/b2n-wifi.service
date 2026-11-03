@@ -1,0 +1,13 @@
+[Unit]
+Description=B2N Qualcomm WLAN bring-up
+After=lxc-android-config.service NetworkManager.service systemd-tmpfiles-setup.service mnt-vendor-persist.mount
+Wants=lxc-android-config.service NetworkManager.service mnt-vendor-persist.mount
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/b2n-wifi-up
+
+[Install]
+WantedBy=multi-user.target

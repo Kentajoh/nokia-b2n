@@ -1,0 +1,113 @@
+#!/bin/sh
+
+# Copyright (C) 2016 Canonical Ltd
+# Copyright (C) 2021 UBports Foundation
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+# Licensing footnote: this script is originally from Debian packaging
+# of Ubuntu's gnome-session source package. However, neither the script
+# nor the package's debian/copyright file mentions any copyright owner
+# of this script. So, we have to assume that this file caries the same
+# license as the rest of gnome-session (GPL-2+). The copyright owner is
+# assumed to by Canonical as the work is done by their employee (at the
+# time), and the copyright year is infered from git commit history of the
+# file at the time the file was copied.
+
+set -e
+
+TARGET_UNIT="$1"
+
+LOG=/var/log/lightdm/b2n-session.log
+log() { echo "run-systemd-session uid=$(id -u) $*" >>"$LOG"; }
+log "start target=$TARGET_UNIT xdg=$XDG_RUNTIME_DIR dbus=$DBUS_SESSION_BUS_ADDRESS"
+
+i=0
+while [ "$i" -lt 50 ]; do
+    if [ -n "$XDG_RUNTIME_DIR" ] && [ -S "$XDG_RUNTIME_DIR/bus" ]; then
+        log "user bus ready after $i tries"
+        break
+    fi
+    i=$((i + 1))
+    sleep 0.1
+done
+if [ -n "$XDG_RUNTIME_DIR" ] && [ -S "$XDG_RUNTIME_DIR/bus" ]; then
+    [ -n "$DBUS_SESSION_BUS_ADDRESS" ] || export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+else
+    log "NO user bus at ${XDG_RUNTIME_DIR}/bus"
+    ls -la "${XDG_RUNTIME_DIR:-/no-xdg}" >>"$LOG" 2>&1 || true
+fi
+
+# clean-up upstart env, if the last session was run with upstart
+# without session systemd restart
+unset UPSTART_SESSION
+systemctl --user unset-environment UPSTART_SESSION MIR_SERVER_PLATFORM_PATH MIR_SERVER_PLATFORM_GRAPHICS_LIB
+
+# some old Qt programs still check this long-deprecated env var
+dbus-update-activation-environment --systemd GNOME_DESKTOP_SESSION_ID=this-is-deprecated
+
+# stop any lingering active units from a previous session
+systemctl --user stop graphical-session.target graphical-session-pre.target
+
+# robustness: if the previous graphical session left some failed units,
+# reset them so that they don't break this startup
+for unit in $(systemctl --user --plain --no-legend --state=failed list-units | cut -f1 -d' '); do
+    if [ "$(systemctl --user show -p PartOf --value $unit)" = "graphical-session.target" ]; then
+        systemctl --user reset-failed $unit
+    fi
+done
+
+# FIXME: synthesize After=graphical-session-pre.target dependencies until this
+# can be done declaratively (https://github.com/systemd/systemd/issues/3750)
+# This could be a generator, but we don't want to penalize non-graphical logins
+# with this.
+systemctl --user list-unit-files --plain --no-legend | while read unit status _; do
+    [ "${unit%.service}" != "$unit" ] || continue
+    [ "$status" != "$disabled" ] || continue
+    if [ "$(systemctl --user show -p PartOf --value $unit)" = "graphical-session.target" ]; then
+        mkdir -p "$XDG_RUNTIME_DIR/systemd/user/${unit}.d"
+        printf '[Unit]\nAfter=graphical-session-pre.target\n' > "$XDG_RUNTIME_DIR/systemd/user/${unit}.d/graphical-session-pre.conf"
+    fi
+done
+systemctl --user daemon-reload
+
+stop_session() {
+    ret=$?
+
+    # Prevent this function from being run twice and allows canceling cleanup
+    # in case it got stuck.
+    trap - EXIT HUP INT QUIT TERM
+
+    log "stop_session ret=$ret"
+    dbus-update-activation-environment --systemd GNOME_DESKTOP_SESSION_ID=
+
+    # Stops our target unit and graphical-session-pre.target.
+    # If configured correctly, the desktop environment will be stopped.
+    # If this is an X session, this also has a side effect of preventing
+    # X server from shuting down until those (graphical) units are down.
+    systemctl --user stop "$TARGET_UNIT" graphical-session-pre.target
+
+    exit $ret
+}
+
+trap stop_session EXIT HUP INT QUIT TERM
+
+# Ensure all cleanups are run until the end even one of the command fails.
+set +e
+
+log "starting $TARGET_UNIT"
+systemctl --user start --wait "$TARGET_UNIT"
+ret=$?
+log "start --wait $TARGET_UNIT -> $ret"
+exit $ret

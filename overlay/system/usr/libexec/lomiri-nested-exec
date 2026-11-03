@@ -1,0 +1,52 @@
+#!/bin/sh
+LOG=/var/log/lightdm/b2n-session.log
+LLOG=/var/log/lightdm/b2n-lomiri.log
+HOST="${MIR_SERVER_HOST_SOCKET:-/run/mir_socket}"
+export MIR_SERVER_HOST_SOCKET="$HOST"
+# Nested platform connects via MIR_SERVER_HOST_SOCKET. MIR_SOCKET is what
+# lomiri-app-launch copies into every app unit, so it must be the socket
+# this process listens on — not USC.
+if [ -z "$MIR_SERVER_FILE" ] && [ -n "$XDG_RUNTIME_DIR" ]; then
+    export MIR_SERVER_FILE="${XDG_RUNTIME_DIR}/mir_socket"
+fi
+export MIR_SOCKET="${MIR_SERVER_FILE:-$HOST}"
+unset MIR_SERVER_PLATFORM_GRAPHICS_LIB
+export MIR_SERVER_PLATFORM_PATH=/usr/lib/aarch64-linux-gnu/mir1/server-platform-nested
+export MIR_SERVER_CONSOLE_PROVIDER=none
+export HYBRIS_EGLPLATFORM=null
+export EGL_PLATFORM=null
+export HYBRIS_LD_LIBRARY_PATH="${HYBRIS_LD_LIBRARY_PATH:-/vendor/lib64/egl:/vendor/lib64:/system/lib64}"
+export QT_LOGGING_RULES="qtmir.applications=true;qt.qpa.*=true;qtmir.mir.input=false;qt.scenegraph.renderloop=false"
+if [ -n "$MIR_SERVER_FILE" ]; then
+    dbus-update-activation-environment --systemd MIR_SOCKET="$MIR_SERVER_FILE" WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}" 2>/dev/null || true
+fi
+# Redirect nested dlopen of android2 to a guest copy that stubs HWC only.
+export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libtls-padding.so /usr/lib/aarch64-linux-gnu/libb2n-dlopen.so /usr/lib/aarch64-linux-gnu/libb2n-abort.so"
+{
+    echo "===== lomiri-nested-exec pid=$$ uid=$(id -u) host=$HOST egl=$HYBRIS_EGLPLATFORM console=$MIR_SERVER_CONSOLE_PROVIDER preload=padding+dlopen ====="
+} >>"$LOG" 2>&1
+echo "===== lomiri pid=$$ uid=$(id -u) host=$HOST egl=$HYBRIS_EGLPLATFORM =====" >>"$LLOG"
+
+# Mir takes host-socket and console-provider from the environment. Lomiri's
+# Qt parser treats those flags as unknown and exits, which restarts the seat.
+n=$#
+while [ "$n" -gt 0 ]; do
+    arg=$1
+    shift
+    n=$((n - 1))
+    case "$arg" in
+        --host-socket|--console-provider|--file)
+            if [ "$n" -gt 0 ]; then
+                shift
+                n=$((n - 1))
+            fi
+            continue
+            ;;
+        --host-socket=*|--console-provider=*|--file=*|/usr/bin/lomiri)
+            continue
+            ;;
+    esac
+    set -- "$@" "$arg"
+done
+echo "===== lomiri exec argv: $* =====" >>"$LLOG"
+exec /usr/bin/lomiri "$@" >>"$LLOG" 2>&1

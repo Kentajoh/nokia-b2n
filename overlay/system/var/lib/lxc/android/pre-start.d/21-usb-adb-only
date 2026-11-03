@@ -1,0 +1,10 @@
+#!/bin/sh
+# Android adbd is removed on Halium. Vendor USB init wants mtp,mass_storage
+# which panics this kernel. Leave persist USB config empty/none so Ubuntu
+# usb-moded can bind the UDC and provide ADB.
+prop=$LXC_ROOTFS_PATH/default.prop
+if [ -f "$prop" ]; then
+    sed -i '/^persist.sys.usb.config=/d' "$prop"
+    echo 'persist.sys.usb.config=none' >> "$prop"
+fi
+echo "<3>b2n: persist.sys.usb.config=none (usb-moded owns gadget)" > /dev/kmsg

@@ -1,0 +1,15 @@
+[Unit]
+Description=Android persist (read-only, WLAN MAC)
+DefaultDependencies=no
+After=local-fs.target
+Before=b2n-wifi.service
+ConditionPathExists=/dev/disk/by-partlabel/persist
+
+[Mount]
+What=/dev/disk/by-partlabel/persist
+Where=/mnt/vendor/persist
+Type=ext4
+Options=ro,nosuid,nodev,noexec
+
+[Install]
+WantedBy=multi-user.target

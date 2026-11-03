@@ -1,0 +1,33 @@
+#!/bin/sh
+# Click apps are launched with aa-exec. This kernel has no AppArmor
+# interface, and stock aa-exec then exits 1 before the app starts.
+# If AppArmor is present, use the real binary; otherwise run unconfined.
+REAL=/usr/libexec/aa-exec.apparmor
+if [ -d /sys/kernel/security/apparmor ] && [ -x "$REAL" ]; then
+    exec "$REAL" "$@"
+fi
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --)
+            shift
+            break
+            ;;
+        -p|--profile|-f|--file|-n|--namespace|-m|--mode)
+            shift
+            [ $# -gt 0 ] && shift
+            ;;
+        --profile=*|--file=*|--namespace=*|--mode=*)
+            shift
+            ;;
+        -d|--debug|-v|--verbose|--pure-ptrace)
+            shift
+            ;;
+        -*)
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+exec "$@"

@@ -1,0 +1,15 @@
+#!/bin/sh
+# Hybris glibc wrappers android_dlopen these bionic shims from ANDROID_ROOT.
+# Copy them onto the Android system-as-root image each boot so /system/lib64
+# stays populated even if vendor is left stock.
+src=/usr/libexec/droid-hybris/system/lib64
+root="${LXC_ROOTFS_PATH:-${LXC_ROOTFS_MOUNT:-}}"
+[ -n "$root" ] || exit 0
+[ -d "$src" ] || exit 0
+for d in "$root/system/lib64" "$root/lib64"; do
+    [ -d "$d" ] || continue
+    for f in "$src"/lib*_compat_layer.so; do
+        [ -f "$f" ] || continue
+        cp -f "$f" "$d/" 2>/dev/null || true
+    done
+done
