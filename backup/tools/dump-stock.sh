@@ -4,12 +4,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# shellcheck source=../../scripts/lib/host-tools.sh
+source "$ROOT/scripts/lib/host-tools.sh"
 TOOLS="$ROOT/backup/tools"
 OUT="$ROOT/backup/stock-00WW_4_15N"
 TWRP="$TOOLS/twrp-3.7.0_9-0-B2N_sprout.img"
-SDK="$HOME/Library/Android/sdk/platform-tools"
-ADB="$SDK/adb"
-FASTBOOT="$SDK/fastboot"
+b2n_require_tool ADB adb
+b2n_require_tool FASTBOOT fastboot
 SERIAL="$("$ADB" devices | awk 'NR>1 && ($2=="device" || $2=="recovery") {print $1; exit}')"
 if [[ -z "${SERIAL}" ]]; then
   echo "No adb device in device or recovery state" >&2
@@ -129,7 +130,7 @@ done < "$OUT/partitions.txt"
 
 (
   cd "$OUT"
-  shasum -a 256 *.img partitions.txt > SHA256SUMS
+  b2n_sha256_write *.img partitions.txt
 )
 
 echo "rebooting to Android"

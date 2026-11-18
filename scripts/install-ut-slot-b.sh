@@ -10,15 +10,13 @@ if [[ "${1:-}" != "--confirm" ]]; then
 fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lib/host-tools.sh
+source "$ROOT/scripts/lib/host-tools.sh"
 BOOT="$ROOT/out/boot.img"
 SYSTEM="$ROOT/out/system.img"
-FASTBOOT="${FASTBOOT:-$HOME/Library/Android/sdk/platform-tools/fastboot}"
 SYSTEM_PARTITION_BYTES=3221225472
 
-if [[ ! -x "$FASTBOOT" ]]; then
-  echo "fastboot not found: $FASTBOOT" >&2
-  exit 1
-fi
+b2n_require_tool FASTBOOT fastboot
 if [[ ! -f "$BOOT" || ! -f "$SYSTEM" ]]; then
   echo "Need $BOOT and $SYSTEM" >&2
   exit 1
