@@ -11,9 +11,12 @@ if [[ "${1:-}" != "--confirm" ]]; then
 fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lib/host-tools.sh
+source "$ROOT/scripts/lib/host-tools.sh"
 DUMP="${2:-$ROOT/backup/stock-00WW_4_15N}"
-FASTBOOT="$HOME/Library/Android/sdk/platform-tools/fastboot"
-ADB="$HOME/Library/Android/sdk/platform-tools/adb"
+
+b2n_require_tool FASTBOOT fastboot
+b2n_require_tool ADB adb
 
 if [[ ! -d "$DUMP" ]]; then
   echo "Dump directory not found: $DUMP" >&2
@@ -22,7 +25,7 @@ fi
 
 cd "$DUMP"
 if [[ -f SHA256SUMS ]]; then
-  shasum -a 256 -c SHA256SUMS
+  b2n_sha256_check
 fi
 
 "$ADB" reboot bootloader

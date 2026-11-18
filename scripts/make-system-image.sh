@@ -5,8 +5,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lib/host-tools.sh
+source "$ROOT/scripts/lib/host-tools.sh"
 OUT="$ROOT/out"
-MKE2FS="${MKE2FS:-$HOME/Library/Android/sdk/platform-tools/mke2fs}"
 ROOTFS_TAR="$OUT/ubuntu-touch-android9plus-rootfs-arm64.tar.gz"
 DEVICE_TAR="$OUT/device_B2N.tar.xz"
 TREE="$OUT/system-root"
@@ -15,10 +16,7 @@ BYTES=$((3000 * 1024 * 1024))
 BLOCK=4096
 BLOCKS=$((BYTES / BLOCK))
 
-if [[ ! -x "$MKE2FS" ]]; then
-  echo "mke2fs not found: $MKE2FS" >&2
-  exit 1
-fi
+b2n_require_tool MKE2FS mke2fs
 if [[ ! -f "$ROOTFS_TAR" || ! -f "$DEVICE_TAR" ]]; then
   echo "Need $ROOTFS_TAR and $DEVICE_TAR" >&2
   exit 1
@@ -59,7 +57,7 @@ fi
 # Record original modes, then grant the owner read access so mke2fs can
 # copy execute-only directories such as var/lib/snapd/void. The image
 # walk below writes the recorded modes back. Host tar extracts as the
-# Mac user, so uid/gid come from the rootfs tarball, not the tree.
+# current user, so uid/gid come from the rootfs tarball, not the tree.
 python3 - "$ROOTFS_TAR" "$OUT/system-owners.txt" <<'PY'
 import tarfile, sys
 tar_path, dest = sys.argv[1:]
